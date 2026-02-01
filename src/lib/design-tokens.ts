@@ -1,37 +1,51 @@
-// 7DAY Design System - Design Tokens
+// CBW Coffee Design System - Design Tokens
 // The single source of truth for all design decisions
 
 export const designTokens = {
-  // Color System - 8 color palette
+  // Color System
   colors: {
-    // Primary Brand Colors
+    // Primary Accent — Yellow Gold
     primary: {
-      50: '#eff6ff',
-      100: '#dbeafe', 
-      200: '#bfdbfe',
-      300: '#93c5fd',
-      400: '#60a5fa',
-      500: '#3b82f6', // Main brand color
-      600: '#2563eb',
-      700: '#1d4ed8',
-      800: '#1e40af',
-      900: '#1e3a8a'
+      50: '#FEF9E7',
+      100: '#FDF2C9',
+      200: '#FAE494',
+      300: '#F7D55E',
+      400: '#F5C842', // Main brand accent
+      500: '#E8B430',
+      600: '#D4A020',
+      700: '#B8870F',
+      800: '#8C6508',
+      900: '#604504'
     },
-    
-    // Neutral Grays
+
+    // Brand Browns
+    brown: {
+      50: '#FAF5F0',
+      100: '#F0E6D8',
+      200: '#DCC9A8',
+      300: '#C4A87A',
+      400: '#A0785A',
+      500: '#6B4226',
+      600: '#4F3018',
+      700: '#3B2A1A', // Logo, headings
+      800: '#2A1E12',
+      900: '#1A120A'
+    },
+
+    // Neutral — Warm whites and grays
     neutral: {
-      0: '#ffffff',
-      50: '#f9fafb',
-      100: '#f3f4f6',
-      200: '#e5e7eb',
-      300: '#d1d5db',
-      400: '#9ca3af',
-      500: '#6b7280',
-      600: '#4b5563',
-      700: '#374151',
-      800: '#1f2937',
-      900: '#111827',
-      950: '#030712'
+      0: '#FFFFFF',
+      50: '#FAFAF8', // Page backgrounds
+      100: '#F5F5F2',
+      200: '#E8E8E4',
+      300: '#D4D4D0',
+      400: '#A3A3A0',
+      500: '#6B6B6B', // Body text secondary
+      600: '#4B4B4B',
+      700: '#333333',
+      800: '#1A1A1A', // Body text primary
+      900: '#0F0F0F',
+      950: '#080808'
     },
     
     // Semantic Colors
