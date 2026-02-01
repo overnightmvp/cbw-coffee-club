@@ -1,16 +1,59 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'How to Get Listed on The Bean Route',
   description: 'Get your mobile coffee cart listed on The Bean Route in under 10 minutes. Free listing, direct inquiries, no middleman.',
 }
 
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Is it really free?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Yes. Listing on The Bean Route is free at launch. No fees, no monthly charges, no commission on bookings.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I update my listing later?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Yes. Let us know if your pricing changes, you want to add suburbs, or anything else needs updating. We\'ll sort it.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'Do I need to accept every inquiry?',
+      acceptedAnswer: { '@type': 'Answer', text: 'No. You\'re under no obligation to accept any booking. If a date doesn\'t work or the event isn\'t right for your cart, just let the contractor know.' },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I get listed right now?',
+      acceptedAnswer: { '@type': 'Answer', text: 'Email us at hello@thebeanroute.com.au with your details. We\'ll get you set up within 24 hours.' },
+    },
+  ],
+}
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+    { '@type': 'ListItem', position: 2, name: 'Vendor Guide', item: `${baseUrl}/vendors-guide` },
+    { '@type': 'ListItem', position: 3, name: 'Get listed' },
+  ],
+}
+
 export default function GetListed() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={faqSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Header variant="app" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -182,12 +225,12 @@ export default function GetListed() {
         {/* CTA */}
         <div className="rounded-xl p-8 text-center" style={{ background: 'linear-gradient(135deg, #3B2A1A 0%, #6B4226 100%)' }}>
           <h2 className="text-xl font-bold text-white mb-2">Ready to get listed?</h2>
-          <p className="text-sm mb-6" style={{ color: '#A0785A' }}>Email us with your details and we'll have you live within 24 hours.</p>
-          <a href="mailto:hello@thebeanroute.com.au">
+          <p className="text-sm mb-6" style={{ color: '#A0785A' }}>It takes less than 10 minutes. We'll have you live within 24 hours.</p>
+          <Link href="/vendors/register">
             <Button className="bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold">
-              Email to get listed
+              Get listed on The Bean Route
             </Button>
-          </a>
+          </Link>
         </div>
 
         {/* Back link */}
@@ -197,6 +240,8 @@ export default function GetListed() {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

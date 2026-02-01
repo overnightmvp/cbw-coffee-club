@@ -36,6 +36,9 @@ export function Header({ variant = 'landing' }: HeaderProps) {
                 <Link href="/app" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
                   Browse
                 </Link>
+                <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
+                  Jobs
+                </Link>
                 <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
                   For Events
                 </Link>
@@ -51,8 +54,14 @@ export function Header({ variant = 'landing' }: HeaderProps) {
                 <Link href="/app" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
                   Browse
                 </Link>
-                <Link href="/admin" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
-                  Admin
+                <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
+                  Jobs
+                </Link>
+                <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
+                  For Events
+                </Link>
+                <Link href="/vendors-guide" className="text-neutral-600 hover:text-neutral-900 transition-colors text-sm">
+                  For Vendors
                 </Link>
               </>
             )}
@@ -90,6 +99,9 @@ export function Header({ variant = 'landing' }: HeaderProps) {
                   <Link href="/app" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Browse
                   </Link>
+                  <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                    Jobs
+                  </Link>
                   <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     For Events
                   </Link>
@@ -105,8 +117,14 @@ export function Header({ variant = 'landing' }: HeaderProps) {
                   <Link href="/app" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Browse
                   </Link>
-                  <Link href="/admin" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
-                    Admin
+                  <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                    Jobs
+                  </Link>
+                  <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                    For Events
+                  </Link>
+                  <Link href="/vendors-guide" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                    For Vendors
                   </Link>
                 </>
               )}

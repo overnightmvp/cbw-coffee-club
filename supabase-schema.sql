@@ -54,3 +54,63 @@ CREATE POLICY "inquiries_public_insert" ON inquiries
 -- Inquiries are read-only via anon (admin reads via service role)
 CREATE POLICY "inquiries_no_anon_read" ON inquiries
   FOR SELECT USING (FALSE);
+
+-- Vendor self-registration submissions
+CREATE TABLE vendor_applications (
+  id                TEXT        PRIMARY KEY,
+  business_name     TEXT        NOT NULL,
+  specialty         TEXT        NOT NULL,
+  description       TEXT        NOT NULL,
+  suburbs           TEXT[]      NOT NULL,
+  price_min         INTEGER     NOT NULL,
+  price_max         INTEGER     NOT NULL,
+  capacity_min      INTEGER     NOT NULL,
+  capacity_max      INTEGER     NOT NULL,
+  event_types       TEXT[]      NOT NULL,
+  contact_name      TEXT        NOT NULL,
+  contact_email     TEXT        NOT NULL,
+  contact_phone     TEXT,
+  website           TEXT,
+  status            TEXT        NOT NULL DEFAULT 'pending',
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Event owner job postings
+CREATE TABLE jobs (
+  id                   TEXT        PRIMARY KEY,
+  event_title          TEXT        NOT NULL,
+  event_type           TEXT        NOT NULL,
+  event_date           TEXT        NOT NULL,
+  duration_hours       INTEGER     NOT NULL,
+  guest_count          INTEGER     NOT NULL,
+  location             TEXT        NOT NULL,
+  budget_min           INTEGER,
+  budget_max           INTEGER     NOT NULL,
+  special_requirements TEXT,
+  contact_name         TEXT        NOT NULL,
+  contact_email        TEXT        NOT NULL,
+  contact_phone        TEXT,
+  status               TEXT        NOT NULL DEFAULT 'open',
+  created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Vendor quotes against a job
+CREATE TABLE quotes (
+  id              TEXT        PRIMARY KEY,
+  job_id          TEXT        NOT NULL REFERENCES jobs(id),
+  vendor_name     TEXT        NOT NULL,
+  price_per_hour  INTEGER     NOT NULL,
+  message         TEXT,
+  contact_email   TEXT        NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS — world-readable, world-writable (MVP)
+ALTER TABLE vendor_applications ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "vendor_applications_all" ON vendor_applications FOR ALL USING (TRUE) WITH CHECK (TRUE);
+
+ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "jobs_all" ON jobs FOR ALL USING (TRUE) WITH CHECK (TRUE);
+
+ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "quotes_all" ON quotes FOR ALL USING (TRUE) WITH CHECK (TRUE);

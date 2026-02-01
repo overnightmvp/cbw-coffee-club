@@ -1,16 +1,32 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'Guides for Hiring Coffee Carts | The Bean Route',
   description: 'Everything event planners need to know about hiring a mobile coffee cart in Melbourne. Costs, process, and tips.',
 }
 
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Guides for Hiring Coffee Carts',
+  description: 'Everything event planners need to know about hiring a mobile coffee cart in Melbourne.',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'How to hire a mobile coffee cart', url: `${baseUrl}/contractors/how-to-hire` },
+    { '@type': 'ListItem', position: 2, name: 'Coffee cart costs & pricing', url: `${baseUrl}/contractors/coffee-cart-costs` },
+  ],
+}
+
 export default function ContractorsHub() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={itemListSchema} />
       <Header variant="app" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -79,6 +95,8 @@ export default function ContractorsHub() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

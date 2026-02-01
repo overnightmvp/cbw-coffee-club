@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { getVendorBySlug, type Vendor, formatPriceRange } from '@/lib/vendors'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Badge, Button } from '@/components/ui'
 import { InquiryModal } from '@/components/booking/SimpleBookingModal'
 
@@ -143,6 +144,8 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
           </Link>
         </div>
       </div>
+
+      <Footer />
 
       <InquiryModal
         vendor={vendor}

@@ -1,15 +1,31 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
+import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'Grow Your Mobile Coffee Cart Business | The Bean Route',
   description: "How to stand out in Melbourne's mobile coffee scene. Pricing, response times, repeat clients — the honest playbook.",
 }
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+    { '@type': 'ListItem', position: 2, name: 'Vendor Guide', item: `${baseUrl}/vendors-guide` },
+    { '@type': 'ListItem', position: 3, name: 'Grow your business' },
+  ],
+}
+
 export default function GrowYourBusiness() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={breadcrumbSchema} />
       <Header variant="app" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -145,13 +161,28 @@ export default function GrowYourBusiness() {
           </p>
         </div>
 
+        {/* CTA */}
+        <div className="mt-14 rounded-xl p-8 text-center" style={{ background: 'linear-gradient(135deg, #3B2A1A 0%, #6B4226 100%)' }}>
+          <h2 className="text-xl font-bold text-white mb-2">Ready to get listed?</h2>
+          <p className="text-sm mb-6" style={{ color: '#A0785A' }}>
+            It takes less than 10 minutes. We'll have you live within 24 hours.
+          </p>
+          <Link href="/vendors-guide/get-listed">
+            <Button className="bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold">
+              Get listed on The Bean Route
+            </Button>
+          </Link>
+        </div>
+
         {/* Back link */}
-        <div className="mt-12">
+        <div className="mt-8">
           <Link href="/vendors-guide" className="text-sm text-neutral-500 hover:text-neutral-800">
             ← Back to vendor guides
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

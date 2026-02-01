@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import JsonLd from "@/components/seo/JsonLd";
 
 export const metadata: Metadata = {
   title: "The Bean Route — Melbourne's Mobile Coffee Cart Marketplace",
@@ -12,6 +13,24 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "The Bean Route",
+  url: "https://thebeanroute.com.au",
+  description:
+    "Melbourne's mobile coffee cart marketplace. Find and book coffee carts for your next event.",
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "hello@thebeanroute.com.au",
+    contactType: "customer service",
+  },
+  areaServed: {
+    "@type": "City",
+    name: "Melbourne",
+  },
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -19,7 +38,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <JsonLd data={organizationSchema} />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,16 +1,47 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'How to Hire a Mobile Coffee Cart | The Bean Route',
   description: 'Step-by-step guide to booking a mobile coffee cart for your event in Melbourne. From first inquiry to great coffee.',
 }
 
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to hire a mobile coffee cart',
+  description: 'Step-by-step guide to booking a mobile coffee cart for your event in Melbourne.',
+  url: `${baseUrl}/contractors/how-to-hire`,
+  step: [
+    { '@type': 'HowToStep', name: 'Know what you need', text: 'Define your guest count, event type, and venue before searching.' },
+    { '@type': 'HowToStep', name: 'Find the right cart', text: 'Browse vendors by suburb, specialty, and price range on The Bean Route.' },
+    { '@type': 'HowToStep', name: 'Submit an inquiry', text: 'Fill in your event details. Free to inquire, no commitment.' },
+    { '@type': 'HowToStep', name: 'Confirm the details', text: 'Work out logistics and pricing directly with the vendor.' },
+    { '@type': 'HowToStep', name: 'Enjoy the coffee', text: 'The vendor handles setup, service, and pack-down on the day.' },
+  ],
+}
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+    { '@type': 'ListItem', position: 2, name: 'Contractors', item: `${baseUrl}/contractors` },
+    { '@type': 'ListItem', position: 3, name: 'How to hire' },
+  ],
+}
+
 export default function HowToHire() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={howToSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Header variant="app" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -159,6 +190,8 @@ export default function HowToHire() {
           ← Back to contractor guides
         </Link>
       </div>
+
+      <Footer />
     </div>
   )
 }

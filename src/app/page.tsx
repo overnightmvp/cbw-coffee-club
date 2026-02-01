@@ -3,6 +3,7 @@
 import React from 'react'
 import { Button, Card, CardContent } from '@/components/ui'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { VendorCarousel } from '@/components/experiences/HorizontalExperiences'
 import Link from 'next/link'
 
@@ -32,7 +33,7 @@ export default function Home() {
                   Browse Vendors
                 </Button>
               </Link>
-              <Link href="/vendors-guide">
+              <Link href="/vendors-guide/get-listed">
                 <Button size="lg" variant="outline" className="min-h-[48px] px-8">
                   List Your Cart
                 </Button>
@@ -170,6 +171,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </div>
   )
 }

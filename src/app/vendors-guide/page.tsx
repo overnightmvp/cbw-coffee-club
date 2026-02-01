@@ -1,16 +1,32 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'Grow Your Coffee Cart Business | The Bean Route',
   description: 'The Bean Route connects Melbourne coffee cart operators with event planners. Get listed, get inquiries, grow your business.',
 }
 
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Guides for Coffee Cart Operators',
+  description: 'How to get listed and grow your mobile coffee cart business on The Bean Route.',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'How to get listed', url: `${baseUrl}/vendors-guide/get-listed` },
+    { '@type': 'ListItem', position: 2, name: 'Grow your business', url: `${baseUrl}/vendors-guide/grow-your-business` },
+  ],
+}
+
 export default function VendorsGuideHub() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={itemListSchema} />
       <Header variant="app" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -98,6 +114,8 @@ export default function VendorsGuideHub() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

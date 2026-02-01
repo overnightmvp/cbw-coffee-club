@@ -1,16 +1,42 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
+import JsonLd from '@/components/seo/JsonLd'
+
+const baseUrl = 'https://thebeanroute.com.au'
 
 export const metadata: Metadata = {
   title: 'Coffee Cart Costs & Pricing | The Bean Route',
   description: 'Honest Melbourne pricing for mobile coffee carts. What\'s included, what affects cost, and how to budget your event.',
 }
 
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: 'How much does a mobile coffee cart cost?',
+  description: 'Honest Melbourne pricing for mobile coffee carts. What\'s included, what affects cost, and how to budget your event.',
+  author: { '@type': 'Organization', name: 'The Bean Route' },
+  publisher: { '@type': 'Organization', name: 'The Bean Route', url: baseUrl },
+  url: `${baseUrl}/contractors/coffee-cart-costs`,
+}
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+    { '@type': 'ListItem', position: 2, name: 'Contractors', item: `${baseUrl}/contractors` },
+    { '@type': 'ListItem', position: 3, name: 'Costs & pricing' },
+  ],
+}
+
 export default function CoffeeCartCosts() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumbSchema} />
       <Header variant="app" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -190,6 +216,8 @@ export default function CoffeeCartCosts() {
           ← Back to contractor guides
         </Link>
       </div>
+
+      <Footer />
     </div>
   )
 }
