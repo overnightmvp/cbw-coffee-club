@@ -16,22 +16,20 @@ export function AuthGate({ children }: AuthGateProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    // Check for existing session
-    const session = localStorage.getItem('admin_session')
-    if (session) {
+    // Check for existing session via API
+    const checkSession = async () => {
       try {
-        const parsed = JSON.parse(session)
-        // Check if session is still valid (24 hours)
-        if (parsed.expires > Date.now()) {
+        const response = await fetch('/api/admin/session')
+        if (response.ok) {
           setIsAuthenticated(true)
-        } else {
-          localStorage.removeItem('admin_session')
         }
       } catch (e) {
-        localStorage.removeItem('admin_session')
+        // Session doesn't exist or is invalid
+      } finally {
+        setIsLoading(false)
       }
     }
-    setIsLoading(false)
+    checkSession()
   }, [])
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -89,14 +87,7 @@ export function AuthGate({ children }: AuthGateProps) {
         throw new Error('Invalid code')
       }
 
-      const data = await response.json()
-
-      // Store session in localStorage
-      const session = {
-        email,
-        expires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-      }
-      localStorage.setItem('admin_session', JSON.stringify(session))
+      // Session cookie is set by the API route
       setIsAuthenticated(true)
     } catch (err) {
       setError('Invalid verification code. Please try again.')

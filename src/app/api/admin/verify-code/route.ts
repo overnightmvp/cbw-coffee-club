@@ -38,7 +38,21 @@ export async function POST(request: NextRequest) {
     // Clear the used code
     global.adminCodes?.delete(email.toLowerCase())
 
-    return NextResponse.json({ success: true, email })
+    // Create session cookie
+    const session = {
+      email,
+      expires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    }
+
+    const response = NextResponse.json({ success: true, email })
+    response.cookies.set('admin_session', JSON.stringify(session), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 // 24 hours in seconds
+    })
+
+    return response
   } catch (error) {
     console.error('Error verifying code:', error)
     return NextResponse.json({ error: 'Failed to verify code' }, { status: 500 })
