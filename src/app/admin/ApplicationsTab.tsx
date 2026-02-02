@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 
 type Application = {
@@ -41,7 +40,9 @@ export default function ApplicationsTab({ onMessage }: { onMessage: (msg: string
   const fetchApplications = async () => {
     setLoading(true)
     try {
-      const { data } = await supabase.from('vendor_applications').select('*').order('created_at', { ascending: false })
+      const response = await fetch('/api/admin/applications')
+      if (!response.ok) throw new Error('Failed to fetch applications')
+      const { data } = await response.json()
       setApplications(data || [])
     } catch (error) {
       console.error('Error fetching applications:', error)
@@ -53,7 +54,12 @@ export default function ApplicationsTab({ onMessage }: { onMessage: (msg: string
 
   const updateStatus = async (appId: string, status: Application['status']) => {
     try {
-      await supabase.from('vendor_applications').update({ status }).eq('id', appId)
+      const response = await fetch(`/api/admin/applications/${appId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      if (!response.ok) throw new Error('Failed to update application')
       setApplications(prev => prev.map(a => a.id === appId ? { ...a, status } : a))
       if (selectedApp?.id === appId) setSelectedApp(prev => prev ? { ...prev, status } : null)
       onMessage(`Application ${status}`)

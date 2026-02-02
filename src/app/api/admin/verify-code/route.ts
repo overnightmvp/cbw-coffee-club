@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering - this route sets cookies
+export const dynamic = 'force-dynamic'
+
 // This should match the Map in send-code route
 // In production, use shared Redis/database
 declare global {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 
 type Job = {
@@ -42,9 +41,10 @@ export default function JobsTab({ onMessage }: { onMessage: (msg: string) => voi
   const fetchJobs = async () => {
     setLoading(true)
     try {
-      const { data: jobData } = await supabase.from('jobs').select('*').order('created_at', { ascending: false })
+      const response = await fetch('/api/admin/jobs')
+      if (!response.ok) throw new Error('Failed to fetch jobs')
+      const { jobs: jobData, quotes: quoteData } = await response.json()
       setJobs(jobData || [])
-      const { data: quoteData } = await supabase.from('quotes').select('*').order('created_at', { ascending: false })
       setQuotes(quoteData || [])
     } catch (error) {
       console.error('Error fetching jobs:', error)
@@ -56,7 +56,12 @@ export default function JobsTab({ onMessage }: { onMessage: (msg: string) => voi
 
   const updateStatus = async (jobId: string, status: Job['status']) => {
     try {
-      await supabase.from('jobs').update({ status }).eq('id', jobId)
+      const response = await fetch(`/api/admin/jobs/${jobId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      if (!response.ok) throw new Error('Failed to update job')
       setJobs(prev => prev.map(j => j.id === jobId ? { ...j, status } : j))
       if (selectedJob?.id === jobId) setSelectedJob(prev => prev ? { ...prev, status } : null)
       onMessage(`Job marked as ${status}`)

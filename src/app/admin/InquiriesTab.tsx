@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 
 type Inquiry = {
@@ -39,7 +38,9 @@ export default function InquiriesTab({ onMessage }: { onMessage: (msg: string) =
   const fetchLeads = async () => {
     setLoading(true)
     try {
-      const { data } = await supabase.from('inquiries').select('*').order('created_at', { ascending: false })
+      const response = await fetch('/api/admin/inquiries')
+      if (!response.ok) throw new Error('Failed to fetch inquiries')
+      const { data } = await response.json()
       setLeads(data || [])
     } catch (error) {
       console.error('Error fetching leads:', error)
@@ -51,7 +52,12 @@ export default function InquiriesTab({ onMessage }: { onMessage: (msg: string) =
 
   const updateStatus = async (leadId: string, status: Inquiry['status']) => {
     try {
-      await supabase.from('inquiries').update({ status }).eq('id', leadId)
+      const response = await fetch(`/api/admin/inquiries/${leadId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      if (!response.ok) throw new Error('Failed to update inquiry')
       setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status } : l))
       if (selectedLead?.id === leadId) setSelectedLead(prev => prev ? { ...prev, status } : null)
       onMessage(`Inquiry marked as ${status}`)

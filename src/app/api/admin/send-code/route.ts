@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+// Force dynamic rendering - admin API routes should never be static
+export const dynamic = 'force-dynamic'
+
 // Simple in-memory store for verification codes (MVP only)
 // In production, use Redis or database
 declare global {
