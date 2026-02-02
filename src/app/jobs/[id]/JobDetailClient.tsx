@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import QuoteModal from '@/components/jobs/QuoteModal'
 import type { Job, Quote } from '@/lib/supabase'
 
@@ -31,6 +32,7 @@ export default function JobDetailClient({ id }: { id: string }) {
         <div className="max-w-3xl mx-auto px-4 py-32 text-center">
           <div className="w-8 h-8 border-2 border-neutral-300 border-t-[#F5C842] rounded-full animate-spin mx-auto" />
         </div>
+        <Footer />
       </div>
     )
   }
@@ -43,6 +45,7 @@ export default function JobDetailClient({ id }: { id: string }) {
           <h1 className="text-xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Job not found</h1>
           <p className="text-neutral-500 text-sm">This job may have been removed or the link is incorrect.</p>
         </div>
+        <Footer />
       </div>
     )
   }
@@ -131,6 +134,7 @@ export default function JobDetailClient({ id }: { id: string }) {
           onSuccess={() => { setQuoteModalOpen(false); fetchData() }}
         />
       </div>
+      <Footer />
     </div>
   )
 }

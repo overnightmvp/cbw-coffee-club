@@ -11,6 +11,8 @@ const staticPages = [
   { url: '/vendors-guide', priority: 0.7 },
   { url: '/vendors-guide/get-listed', priority: 0.6 },
   { url: '/vendors-guide/grow-your-business', priority: 0.6 },
+  { url: '/jobs', priority: 0.6 },
+  { url: '/vendors/register', priority: 0.7 },
 ]
 
 export default function sitemap() {

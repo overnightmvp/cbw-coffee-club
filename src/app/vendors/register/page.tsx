@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import { StepIndicator } from '@/components/shared/StepIndicator'
 
 interface RegistrationFormData {
@@ -150,6 +151,7 @@ export default function VendorRegister() {
             Browse the marketplace →
           </Link>
         </div>
+        <Footer />
       </div>
     )
   }
@@ -400,6 +402,7 @@ export default function VendorRegister() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   )
 }

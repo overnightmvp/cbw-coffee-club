@@ -27,6 +27,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li><Link href="/app" className="text-sm text-neutral-500 hover:text-neutral-800 transition-colors">All Vendors</Link></li>
               <li><Link href="/jobs" className="text-sm text-neutral-500 hover:text-neutral-800 transition-colors">Jobs</Link></li>
+              <li><Link href="/design-system" className="text-sm text-neutral-500 hover:text-neutral-800 transition-colors">Design System</Link></li>
             </ul>
           </div>
 
@@ -53,7 +54,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <p className="text-xs text-neutral-400">&copy; 2025 The Bean Route. Melbourne, Victoria, Australia.</p>
+          <p className="text-xs text-neutral-400">&copy; 2026 The Bean Route. Melbourne, Victoria, Australia.</p>
           <div className="flex items-center gap-6">
             <a href="mailto:hello@thebeanroute.com.au" className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors">Contact</a>
             <Link href="/sitemap.xml" className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors">Sitemap</Link>

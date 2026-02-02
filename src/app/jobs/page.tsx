@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
+import { Footer } from '@/components/navigation/Footer'
 import type { Job } from '@/lib/supabase'
 
 const EVENT_TYPES = ['All types', 'Corporate event', 'Wedding', 'Festival', 'Birthday party', 'Conference', 'Private gathering']
@@ -53,6 +54,7 @@ export default function JobsPage() {
         <div className="max-w-6xl mx-auto px-4 py-32 text-center">
           <div className="w-8 h-8 border-2 border-neutral-300 border-t-[#F5C842] rounded-full animate-spin mx-auto" />
         </div>
+        <Footer />
       </div>
     )
   }
@@ -118,6 +120,7 @@ export default function JobsPage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }
