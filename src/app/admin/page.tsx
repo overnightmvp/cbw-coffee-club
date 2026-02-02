@@ -7,6 +7,10 @@ import InquiriesTab from './InquiriesTab'
 import ApplicationsTab from './ApplicationsTab'
 import JobsTab from './JobsTab'
 
+// Force dynamic rendering - prevent static generation at build time
+// Admin page requires runtime env vars for Supabase client
+export const dynamic = 'force-dynamic'
+
 export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<'inquiries' | 'applications' | 'jobs'>('inquiries')
   const [message, setMessage] = useState('')
