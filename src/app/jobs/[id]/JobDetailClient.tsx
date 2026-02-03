@@ -129,6 +129,7 @@ export default function JobDetailClient({ id }: { id: string }) {
 
         <QuoteModal
           jobId={id}
+          job={job}
           isOpen={quoteModalOpen}
           onClose={() => setQuoteModalOpen(false)}
           onSuccess={() => { setQuoteModalOpen(false); fetchData() }}

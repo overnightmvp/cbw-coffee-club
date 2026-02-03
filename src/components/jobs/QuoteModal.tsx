@@ -1,15 +1,17 @@
 'use client'
 
 import React, { useState } from 'react'
+import type { Job } from '@/lib/supabase'
 
 interface QuoteModalProps {
   jobId: string
+  job: Job | null
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
 }
 
-export default function QuoteModal({ jobId, isOpen, onClose, onSuccess }: QuoteModalProps) {
+export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: QuoteModalProps) {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -41,7 +43,7 @@ export default function QuoteModal({ jobId, isOpen, onClose, onSuccess }: QuoteM
     try {
       const { supabase } = await import('@/lib/supabase')
       const id = `qte_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-      await supabase.from('quotes').insert({
+      const { error } = await supabase.from('quotes').insert({
         id,
         job_id: jobId,
         vendor_name: formData.vendorName.trim(),
@@ -49,6 +51,46 @@ export default function QuoteModal({ jobId, isOpen, onClose, onSuccess }: QuoteM
         message: formData.message.trim() || null,
         contact_email: formData.contactEmail.trim(),
       })
+
+      if (error) {
+        console.error('Quote submission error:', error)
+        setErrors({ submit: 'Something went wrong. Please try again.' })
+        return
+      }
+
+      // Send email notifications to owner and vendor
+      if (job) {
+        try {
+          await fetch('/api/notify/quote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ownerEmail: job.contact_email,
+              ownerName: job.contact_name,
+              jobTitle: job.event_title,
+              vendor: {
+                name: formData.vendorName.trim(),
+                email: formData.contactEmail.trim()
+              },
+              quote: {
+                pricePerHour: Number(formData.pricePerHour),
+                message: formData.message.trim() || null
+              },
+              event: {
+                type: job.event_type,
+                date: job.event_date,
+                duration: job.duration_hours,
+                guests: job.guest_count,
+                location: job.location
+              }
+            })
+          })
+        } catch (emailError) {
+          // Don't block submission if email fails
+          console.error('Failed to send email notification:', emailError)
+        }
+      }
+
       setSubmitted(true)
     } catch (err) {
       setErrors({ submit: 'Something went wrong. Please try again.' })

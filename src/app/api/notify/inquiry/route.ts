@@ -66,10 +66,68 @@ export async function POST(request: NextRequest) {
       </div>
     `
 
+    // Send notification to vendor
     await sendEmail(
       vendorEmail,
       `New inquiry from ${planner.name} — ${event.type}`,
       html
+    )
+
+    // Send confirmation to planner
+    const plannerHtml = `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #F5C842; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; color: #1A1A1A; font-size: 24px;">Your inquiry has been sent</h1>
+        </div>
+
+        <div style="padding: 32px 24px; background-color: #ffffff;">
+          <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 24px;">
+            Hi ${planner.name},
+          </p>
+          <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 24px;">
+            Thanks for your inquiry! We've forwarded your request to <strong>${vendorName}</strong> and they'll be in touch shortly to discuss availability and finalize pricing.
+          </p>
+
+          <div style="background-color: #FAFAF8; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+            <h2 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #6B4226; margin: 0 0 16px 0;">Your Event Details</h2>
+            <table style="width: 100%; font-size: 14px; color: #3B2A1A;">
+              <tr><td style="padding: 4px 0;"><strong>Vendor:</strong></td><td style="padding: 4px 0;">${vendorName}</td></tr>
+              <tr><td style="padding: 4px 0;"><strong>Event type:</strong></td><td style="padding: 4px 0;">${event.type}</td></tr>
+              <tr><td style="padding: 4px 0;"><strong>Date:</strong></td><td style="padding: 4px 0;">${event.date}</td></tr>
+              <tr><td style="padding: 4px 0;"><strong>Duration:</strong></td><td style="padding: 4px 0;">${event.duration} hour${event.duration > 1 ? 's' : ''}</td></tr>
+              <tr><td style="padding: 4px 0;"><strong>Guests:</strong></td><td style="padding: 4px 0;">${event.guests}</td></tr>
+              <tr><td style="padding: 4px 0;"><strong>Location:</strong></td><td style="padding: 4px 0;">${event.location}</td></tr>
+            </table>
+          </div>
+
+          <div style="background-color: #FAF5F0; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+            <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #6B4226; margin-bottom: 8px;">Estimated Cost</div>
+            <div style="font-size: 24px; font-weight: bold; color: #3B2A1A;">$${estimatedCost.toLocaleString('en-AU')}</div>
+            <div style="font-size: 12px; color: #6B4226; margin-top: 4px;">The vendor will confirm final pricing</div>
+          </div>
+
+          <p style="font-size: 16px; color: #1A1A1A; margin-bottom: 8px;">
+            <strong>What happens next?</strong>
+          </p>
+          <ul style="font-size: 14px; color: #3B2A1A; margin: 0 0 24px 0; padding-left: 20px;">
+            <li style="margin-bottom: 8px;">The vendor will review your details and reach out within 24 hours</li>
+            <li style="margin-bottom: 8px;">You'll discuss availability and finalize the quote together</li>
+            <li style="margin-bottom: 8px;">Once confirmed, the vendor handles everything on the day</li>
+          </ul>
+
+          <div style="border-top: 1px solid #E5E5E5; padding-top: 20px; margin-top: 32px;">
+            <p style="font-size: 12px; color: #6B7280; margin: 0;">
+              Questions about your inquiry? Reply to this email or contact us at support@coffeecartsmelbourne.com
+            </p>
+          </div>
+        </div>
+      </div>
+    `
+
+    await sendEmail(
+      planner.email,
+      `Inquiry confirmed — ${vendorName} will be in touch soon`,
+      plannerHtml
     )
 
     return NextResponse.json({ success: true })
