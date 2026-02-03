@@ -1,13 +1,13 @@
 # Coffee Cart Marketplace — System Audit & Backlog
 
-**Date:** 2026-02-03 (Updated during E1 implementation)
-**Status:** Phase 2 (Email Notifications) — E1-5 in progress
+**Date:** 2026-02-03 (Updated: E1 Complete)
+**Status:** Phase 2 (Email Notifications) ✅ COMPLETE
 
 ---
 
 ## Executive Summary
 
-System has completed Phase 0 (Cleanup) and Phase 1 (E3 - Protect Admin). Currently completing Phase 2 (E1 - Email Notifications) with E1-0 through E1-4 merged to main. E1-5 (applicant decision emails) in progress. This audit tracks infrastructure readiness and remaining work using agile user stories.
+System has completed Phase 0 (Cleanup), Phase 1 (E3 - Protect Admin), and Phase 2 (E1 - Email Notifications). All 6 email notification stories implemented and merged to main. Next: Phase 3 (E2 - Real Data) to replace hardcoded vendors with Supabase-backed marketplace. This audit tracks infrastructure readiness and remaining work using agile user stories.
 
 ---
 
@@ -64,13 +64,13 @@ localStorage  # Should see no Supabase errors in console
 - [x] E3-2: HTTP-only cookie sessions
 - [x] E3-3: Service role API routes (inquiries, applications, jobs)
 
-### Phase 2: E1 — Email Notifications 🔄 IN PROGRESS (5/6 complete)
+### Phase 2: E1 — Email Notifications ✅ COMPLETE (6/6 complete)
 - [x] E1-0: Brevo setup + sendEmail utility (merged: d9fa2a1)
 - [x] E1-1: Vendor inquiry notification (merged: a6387cb)
 - [x] E1-2: Planner inquiry confirmation (merged: a6387cb - dual email handler)
 - [x] E1-3: Owner quote notification (merged: d56c684)
 - [x] E1-4: Vendor quote confirmation (merged: d56c684 - dual email handler)
-- [🔄] E1-5: Applicant decision notification (in progress)
+- [x] E1-5: Applicant decision notification (merged: 5d82ccc)
 
 ### Phase 3: E2 — Real Data ⏳ PENDING
 - [ ] E2-1: Browse from Supabase (replace hardcoded vendors)
@@ -183,21 +183,24 @@ Technical Notes:
 - Sends to both owner AND vendor in one request
 ```
 
-**Story E1.5 — Applicant Decision Notification** 🔄 IN PROGRESS
+**Story E1.5 — Applicant Decision Notification** ✅ DONE (Commit: 5d82ccc)
 ```
 As a vendor who applied to list on the marketplace
 I want to receive an email when my application is approved or rejected
 So I know the status and what to do next
 
 Acceptance Criteria:
-- Email sent when admin changes application status
-- Different templates for approved vs rejected
-- Approved: congratulations + next steps (profile will appear in Browse)
-- Rejected: polite message + option to apply again later
-- Sent to application.contact_email
+- [x] Email sent when admin changes application status
+- [x] Different templates for approved vs rejected
+- [x] Approved: congratulations + next steps (profile will appear in Browse)
+- [x] Rejected: polite message + option to apply again later
+- [x] Sent to application.contact_email
 
 Technical Notes:
 - Called from: /api/admin/applications/[id] PATCH route
+- Only sends for approved/rejected status (not pending)
+- Approval template: green success styling, listing details, timeline
+- Rejection template: neutral styling, common reasons, reapply invitation
 - After successful status update
 - Check if status changed to 'approved' or 'rejected'
 - Template variation based on final status
