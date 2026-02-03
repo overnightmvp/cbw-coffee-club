@@ -1,13 +1,13 @@
 # Coffee Cart Marketplace — System Audit & Backlog
 
-**Date:** 2026-02-03
-**Status:** Pre-launch audit before continuing Phase 2
+**Date:** 2026-02-03 (Updated during E1 implementation)
+**Status:** Phase 2 (Email Notifications) — E1-5 in progress
 
 ---
 
 ## Executive Summary
 
-System has completed Phase 0 (Cleanup) and Phase 1 (E3 - Protect Admin). Currently in Phase 2 (E1 - Email Notifications) with E1-0 and E1-1 complete. Before proceeding, this audit verifies infrastructure readiness and plans remaining work using agile user stories.
+System has completed Phase 0 (Cleanup) and Phase 1 (E3 - Protect Admin). Currently completing Phase 2 (E1 - Email Notifications) with E1-0 through E1-4 merged to main. E1-5 (applicant decision emails) in progress. This audit tracks infrastructure readiness and remaining work using agile user stories.
 
 ---
 
@@ -64,13 +64,13 @@ localStorage  # Should see no Supabase errors in console
 - [x] E3-2: HTTP-only cookie sessions
 - [x] E3-3: Service role API routes (inquiries, applications, jobs)
 
-### Phase 2: E1 — Email Notifications 🔄 IN PROGRESS
-- [x] E1-0: Brevo setup + sendEmail utility
-- [x] E1-1: Vendor inquiry notification (`/api/notify/inquiry` created)
-- [🔄] E1-2: Planner inquiry confirmation (code written, not merged)
-- [ ] E1-3: Owner quote notification
-- [ ] E1-4: Vendor quote confirmation
-- [ ] E1-5: Applicant decision notification
+### Phase 2: E1 — Email Notifications 🔄 IN PROGRESS (5/6 complete)
+- [x] E1-0: Brevo setup + sendEmail utility (merged: d9fa2a1)
+- [x] E1-1: Vendor inquiry notification (merged: a6387cb)
+- [x] E1-2: Planner inquiry confirmation (merged: a6387cb - dual email handler)
+- [x] E1-3: Owner quote notification (merged: d56c684)
+- [x] E1-4: Vendor quote confirmation (merged: d56c684 - dual email handler)
+- [🔄] E1-5: Applicant decision notification (in progress)
 
 ### Phase 3: E2 — Real Data ⏳ PENDING
 - [ ] E2-1: Browse from Supabase (replace hardcoded vendors)
@@ -94,7 +94,21 @@ localStorage  # Should see no Supabase errors in console
 
 #### User Stories
 
-**Story E1.1 — Vendor Inquiry Notification** ✅ DONE
+**Story E1.0 — Email Infrastructure** ✅ DONE (Commit: d9fa2a1)
+```
+As the system
+I need a reliable email sending utility
+So that transactional emails can be delivered to users
+
+Acceptance Criteria:
+- [x] @getbrevo/brevo package installed
+- [x] src/lib/email.ts created with sendEmail() function
+- [x] BREVO_API_KEY environment variable documented
+- [x] Graceful fallback: logs to console if API key missing
+- [x] Function returns boolean success status
+```
+
+**Story E1.1 — Vendor Inquiry Notification** ✅ DONE (Commit: a6387cb)
 ```
 As a coffee cart vendor
 I want to receive an email when someone inquires about my services
@@ -113,62 +127,63 @@ Technical Notes:
 - Template: HTML email with brand colors (#F5C842 yellow, #3B2A1A brown)
 ```
 
-**Story E1.2 — Planner Inquiry Confirmation** 🔄 IN PROGRESS
+**Story E1.2 — Planner Inquiry Confirmation** ✅ DONE (Commit: a6387cb)
 ```
 As an event planner
 I want to receive a confirmation email after I submit an inquiry
 So I know my request was received and what to expect next
 
 Acceptance Criteria:
-- Email sent immediately after inquiry submission
-- Confirms vendor name and event details
-- Shows estimated cost
-- Explains next steps (vendor will contact within 24hrs)
-- Branded template matching vendor notification
+- [x] Email sent immediately after inquiry submission
+- [x] Confirms vendor name and event details
+- [x] Shows estimated cost
+- [x] Explains next steps (vendor will contact within 24hrs)
+- [x] Branded template matching vendor notification
 
 Technical Notes:
-- Same API route as E1.1 (/api/notify/inquiry)
-- Second sendEmail call after vendor notification
-- Uses planner.email from request body
+- API route: /api/notify/inquiry (dual email handler)
+- Called from: SimpleBookingModal after Supabase insert
+- Sends to both vendor AND planner in one request
 ```
 
-**Story E1.3 — Owner Quote Notification** ⏳ TODO
+**Story E1.3 — Owner Quote Notification** ✅ DONE (Commit: d56c684)
 ```
 As a job owner who posted an event
 I want to receive an email when a vendor submits a quote
 So I can review and accept the best option
 
 Acceptance Criteria:
-- Email sent after quote insert
-- Shows vendor name and proposed pricing
-- Includes vendor message (if provided)
-- Link or instruction to view full quote
-- Sent to job.contact_email
+- [x] Email sent after quote insert
+- [x] Shows vendor name and proposed pricing
+- [x] Includes vendor message (if provided)
+- [x] Shows total estimate calculation
+- [x] Sent to job.contact_email
 
 Technical Notes:
-- API route: /api/notify/quote (to be created)
+- API route: /api/notify/quote (created)
 - Called from: QuoteModal after Supabase insert
-- Need to fetch job owner email (join quotes + jobs tables)
+- QuoteModal updated to accept job prop for email data
 ```
 
-**Story E1.4 — Vendor Quote Confirmation** ⏳ TODO
+**Story E1.4 — Vendor Quote Confirmation** ✅ DONE (Commit: d56c684)
 ```
 As a vendor who submitted a quote
 I want to receive a confirmation email
 So I know my quote was successfully submitted
 
 Acceptance Criteria:
-- Email sent after quote submission
-- Confirms job title and quoted price
-- Explains next steps (owner will review and contact)
-- Sent to quote.contact_email
+- [x] Email sent after quote submission
+- [x] Confirms job title and quoted price
+- [x] Shows event details and owner contact
+- [x] Explains next steps (owner will review and contact)
+- [x] Sent to quote.contact_email
 
 Technical Notes:
-- Same API route as E1.3 (/api/notify/quote)
-- Second sendEmail call after owner notification
+- API route: /api/notify/quote (dual email handler)
+- Sends to both owner AND vendor in one request
 ```
 
-**Story E1.5 — Applicant Decision Notification** ⏳ TODO
+**Story E1.5 — Applicant Decision Notification** 🔄 IN PROGRESS
 ```
 As a vendor who applied to list on the marketplace
 I want to receive an email when my application is approved or rejected
