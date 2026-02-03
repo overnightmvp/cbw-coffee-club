@@ -13,6 +13,7 @@
     "dev:docs": "npm run build-storybook && npm run dev"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@supabase/supabase-js": "^2.56.1",
     "dotenv": "^17.2.1",
     "next": "14.2.5",
