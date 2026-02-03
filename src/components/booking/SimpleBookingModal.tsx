@@ -107,6 +107,37 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
         return
       }
 
+      // Send email notification to vendor
+      if (vendor.contactEmail) {
+        try {
+          await fetch('/api/notify/inquiry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              vendorEmail: vendor.contactEmail,
+              vendorName: vendor.businessName,
+              planner: {
+                name: formData.contactName,
+                email: formData.contactEmail,
+                phone: formData.contactPhone || 'Not provided'
+              },
+              event: {
+                type: formData.eventType,
+                date: formData.eventDate,
+                duration: formData.durationHours,
+                guests: formData.guestCount,
+                location: formData.location,
+                specialRequests: formData.specialRequests || 'None'
+              },
+              estimatedCost
+            })
+          })
+        } catch (emailError) {
+          // Don't block submission if email fails
+          console.error('Failed to send email notification:', emailError)
+        }
+      }
+
       setSubmitted(true)
     } catch (err) {
       console.error('Unexpected error:', err)
