@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getVendorBySlug, type Vendor, formatPriceRange } from '@/lib/vendors'
+import { type Vendor as LegacyVendor } from '@/lib/vendors'
+import { type Vendor, formatVendorPrice } from '@/lib/supabase'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { Badge, Button } from '@/components/ui'
@@ -13,10 +14,72 @@ interface VendorPageClientProps {
 }
 
 export default function VendorPageClient({ slug }: VendorPageClientProps) {
-  const vendor = getVendorBySlug(slug)
+  const [vendor, setVendor] = useState<Vendor | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
   const [showInquiryModal, setShowInquiryModal] = useState(false)
 
-  if (!vendor) {
+  // Fetch vendor from Supabase
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase')
+        const { data, error } = await supabase
+          .from('vendors')
+          .select('*')
+          .eq('slug', slug)
+          .eq('verified', true)
+          .single()
+
+        if (error || !data) {
+          setNotFound(true)
+        } else {
+          setVendor(data)
+        }
+      } catch (err) {
+        console.error('Error fetching vendor:', err)
+        setNotFound(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchVendor()
+  }, [slug])
+
+  // Convert database vendor to legacy format for InquiryModal
+  const convertToLegacyVendor = (v: Vendor): LegacyVendor => ({
+    id: v.id,
+    slug: v.slug,
+    businessName: v.business_name,
+    specialty: v.specialty,
+    suburbs: v.suburbs,
+    priceMin: v.price_min,
+    priceMax: v.price_max,
+    capacityMin: v.capacity_min,
+    capacityMax: v.capacity_max,
+    description: v.description || '',
+    contactEmail: v.contact_email,
+    contactPhone: v.contact_phone,
+    website: v.website,
+    imageUrl: v.image_url,
+    tags: v.tags
+  })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+        <Header variant="app" />
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
+          <div className="w-8 h-8 border-2 border-neutral-300 border-t-[#F5C842] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-neutral-500 text-sm">Loading vendor...</p>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (notFound || !vendor) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#FAFAF8' }}>
         <div className="text-center">
@@ -54,7 +117,7 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: '#1A1A1A' }}>
-                {vendor.businessName}
+                {vendor.business_name}
               </h1>
               <p className="text-neutral-600 mt-1">{vendor.specialty}</p>
             </div>
@@ -72,13 +135,13 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
           <div className="mt-8 grid sm:grid-cols-3 gap-6">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Price range</div>
-              <div className="text-lg font-bold" style={{ color: '#3B2A1A' }}>{formatPriceRange(vendor)}</div>
+              <div className="text-lg font-bold" style={{ color: '#3B2A1A' }}>{formatVendorPrice(vendor)}</div>
               <div className="text-xs text-neutral-500 mt-0.5">per hour</div>
             </div>
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Capacity</div>
               <div className="text-lg font-bold" style={{ color: '#3B2A1A' }}>
-                {vendor.capacityMin}–{vendor.capacityMax}
+                {vendor.capacity_min}–{vendor.capacity_max}
               </div>
               <div className="text-xs text-neutral-500 mt-0.5">guests</div>
             </div>
@@ -123,7 +186,7 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
             <div className="rounded-lg p-4" style={{ backgroundColor: '#FAF5F0' }}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="font-semibold text-sm" style={{ color: '#1A1A1A' }}>Ready to hire {vendor.businessName}?</div>
+                  <div className="font-semibold text-sm" style={{ color: '#1A1A1A' }}>Ready to hire {vendor.business_name}?</div>
                   <div className="text-xs text-neutral-500 mt-0.5">Free to inquire. No commitment. Direct vendor contact.</div>
                 </div>
                 <Button
@@ -148,7 +211,7 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
       <Footer />
 
       <InquiryModal
-        vendor={vendor}
+        vendor={convertToLegacyVendor(vendor)}
         isOpen={showInquiryModal}
         onClose={() => setShowInquiryModal(false)}
         onSuccess={() => setShowInquiryModal(false)}
