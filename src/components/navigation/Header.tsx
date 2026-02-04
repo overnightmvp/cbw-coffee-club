@@ -93,37 +93,37 @@ export function Header({ variant = 'landing' }: HeaderProps) {
             <div className="flex flex-col space-y-3">
               {variant === 'landing' ? (
                 <>
-                  <Link href="#vendors" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="#vendors" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Vendors
                   </Link>
-                  <Link href="/app" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/app" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Browse
                   </Link>
-                  <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/jobs" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Jobs
                   </Link>
-                  <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/contractors" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     For Events
                   </Link>
-                  <Link href="/vendors-guide" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/vendors-guide" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     For Vendors
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link href="/" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Home
                   </Link>
-                  <Link href="/app" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/app" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Browse
                   </Link>
-                  <Link href="/jobs" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/jobs" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     Jobs
                   </Link>
-                  <Link href="/contractors" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/contractors" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     For Events
                   </Link>
-                  <Link href="/vendors-guide" className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
+                  <Link href="/vendors-guide" onClick={() => setMobileMenuOpen(false)} className="text-neutral-600 hover:text-neutral-900 px-2 py-1 text-sm">
                     For Vendors
                   </Link>
                 </>

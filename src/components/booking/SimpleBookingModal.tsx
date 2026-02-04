@@ -203,7 +203,12 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
   const durationOptions = [1, 2, 3, 4, 5, 6, 8]
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 sm:p-4">
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 sm:p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose()
+      }}
+    >
       <Card className="w-full max-w-xl max-h-[90vh] overflow-y-auto relative z-[10000]">
         {/* Sticky Header */}
         <div className="sticky top-0 bg-white border-b border-neutral-200 p-4 sm:p-6 rounded-t-lg z-10">

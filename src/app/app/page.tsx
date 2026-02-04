@@ -111,8 +111,8 @@ export default function BrowseVendors() {
 
         {/* Filters */}
         <div className="bg-white rounded-lg border border-neutral-200 p-4 mb-6">
-          <div className="flex flex-wrap gap-3 items-end">
-            <div className="flex-1 min-w-[140px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
               <label className="block text-xs font-semibold text-neutral-500 mb-1 uppercase tracking-wider">Suburb</label>
               <select
                 value={filterSuburb}
@@ -126,7 +126,7 @@ export default function BrowseVendors() {
               </select>
             </div>
 
-            <div className="flex-1 min-w-[140px]">
+            <div>
               <label className="block text-xs font-semibold text-neutral-500 mb-1 uppercase tracking-wider">Event type</label>
               <select
                 value={filterTag}
@@ -140,7 +140,7 @@ export default function BrowseVendors() {
               </select>
             </div>
 
-            <div className="flex-1 min-w-[140px]">
+            <div>
               <label className="block text-xs font-semibold text-neutral-500 mb-1 uppercase tracking-wider">Max price/hr</label>
               <select
                 value={filterMaxPrice}
@@ -157,9 +157,11 @@ export default function BrowseVendors() {
             </div>
 
             {hasActiveFilters && (
-              <button onClick={clearFilters} className="text-sm text-neutral-500 hover:text-neutral-800 underline">
-                Clear
-              </button>
+              <div className="flex items-end">
+                <button onClick={clearFilters} className="w-full px-3 py-2 text-sm text-neutral-600 hover:text-neutral-900 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
+                  Clear filters
+                </button>
+              </div>
             )}
           </div>
         </div>
