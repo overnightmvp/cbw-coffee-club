@@ -12,6 +12,8 @@ export default function JobDetailClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [quoteModalOpen, setQuoteModalOpen] = useState(false)
+  const [acceptingQuoteId, setAcceptingQuoteId] = useState<string | null>(null)
+  const [message, setMessage] = useState<string>('')
 
   const fetchData = useCallback(async () => {
     const { supabase } = await import('@/lib/supabase')
@@ -24,6 +26,29 @@ export default function JobDetailClient({ id }: { id: string }) {
   }, [id])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  const handleAcceptQuote = async (quoteId: string, vendorName: string) => {
+    setAcceptingQuoteId(quoteId)
+    try {
+      const response = await fetch(`/api/jobs/quotes/${quoteId}/accept`, {
+        method: 'POST'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to accept quote')
+      }
+
+      setMessage(`Quote from ${vendorName} accepted!`)
+      setTimeout(() => setMessage(''), 3000)
+      await fetchData()
+    } catch (error) {
+      console.error('Error accepting quote:', error)
+      setMessage('Failed to accept quote. Please try again.')
+      setTimeout(() => setMessage(''), 3000)
+    } finally {
+      setAcceptingQuoteId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -54,6 +79,15 @@ export default function JobDetailClient({ id }: { id: string }) {
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
       <Header variant="app" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Success message */}
+        {message && (
+          <div className={`mb-6 p-3 rounded-lg text-sm ${
+            message.includes('Failed') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+          }`}>
+            {message}
+          </div>
+        )}
+
         {/* Job card */}
         <div className="bg-white rounded-xl border border-neutral-200 p-6 sm:p-8 mb-8">
           <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -114,13 +148,44 @@ export default function JobDetailClient({ id }: { id: string }) {
           ) : (
             <div className="space-y-3">
               {quotes.map(quote => (
-                <div key={quote.id} className="bg-white rounded-xl border border-neutral-200 p-5">
+                <div
+                  key={quote.id}
+                  className={`bg-white rounded-xl border p-5 ${
+                    quote.status === 'accepted' ? 'border-green-300 bg-green-50' :
+                    quote.status === 'rejected' ? 'border-neutral-200 opacity-60' :
+                    'border-neutral-200'
+                  }`}
+                >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-sm" style={{ color: '#1A1A1A' }}>{quote.vendor_name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-sm" style={{ color: '#1A1A1A' }}>{quote.vendor_name}</span>
+                      {quote.status === 'accepted' && (
+                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                          Accepted
+                        </span>
+                      )}
+                      {quote.status === 'rejected' && (
+                        <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-600">
+                          Not selected
+                        </span>
+                      )}
+                    </div>
                     <span className="text-sm font-bold" style={{ color: '#3B2A1A' }}>${quote.price_per_hour}/hr</span>
                   </div>
                   {quote.message && <p className="text-sm text-neutral-600 mb-2">{quote.message}</p>}
-                  <p className="text-xs text-neutral-400">{quote.contact_email} · {new Date(quote.created_at).toLocaleDateString('en-AU')}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-neutral-400">{quote.contact_email} · {new Date(quote.created_at).toLocaleDateString('en-AU')}</p>
+                    {quote.status === 'pending' && job.status === 'open' && (
+                      <button
+                        onClick={() => handleAcceptQuote(quote.id, quote.vendor_name)}
+                        disabled={acceptingQuoteId !== null}
+                        className="px-3 py-1 text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
+                        style={{ backgroundColor: '#F5C842', color: '#1A1A1A' }}
+                      >
+                        {acceptingQuoteId === quote.id ? 'Accepting...' : 'Accept'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
