@@ -1,218 +1,490 @@
-# The Bean Route — Development Workflow
+# The Bean Route — Development Skills & Workflow
 
-> One branch per user story. 15 minutes max per task. Build before push. No exceptions.
-
----
-
-## Workflow Problems (Fixed in This Doc)
-
-These were observed and confirmed during the last development cycle:
-
-| Problem | Impact | Fix |
-|---|---|---|
-| All features shipped directly to main | One bad commit breaks everything. No review. | Branch per story. PR to merge. |
-| Build not run before push | Vercel was the first thing to catch type errors | `npm run build` before every push. Period. |
-| Storybook baked into production build | +15s per deploy. 8.3MB of tracked bundle hashes in git | Separate scripts. Stop tracking storybook output. |
-| Stale story files broke builds | 2 stories referenced old "7DAY" product, wrong exports | Stories must type-check. Run build locally. |
-| 753-line admin page | Impossible to reason about. Every change risks breaking other tabs | Split into tab components. |
-| 6 stale branches on origin | Noise. Confusion about what's merged | Delete them. |
-| 1,100 lines of dead code | Confuses new contributors. Inflates bundle. | Delete it. Listed below. |
-| 10 PRD docs in design-system/docs/ | Documentation for a product that no longer exists | Delete them. |
+**Last Updated:** 2026-02-04
+**Status:** Production system with ongoing feature development
 
 ---
 
-## The Rule: Branch Per Story
+## Current Architecture
 
-Before touching any code:
+**Stack:**
+- Next.js 14.2.5 (App Router, TypeScript, Tailwind CSS)
+- Supabase (PostgreSQL + Auth + RLS policies)
+- Brevo (transactional emails)
+- Vercel (hosting + deployments)
+
+**Database Tables:**
+- `vendors` - Coffee cart vendor listings
+- `inquiries` - Event organizer booking requests
+- `vendor_applications` - New vendor registration submissions
+- `jobs` - Job board postings from event organizers
+- `quotes` - Vendor quote submissions for jobs
+
+---
+
+## Completed Features (Production-Ready)
+
+### Phase 1: E3 — Admin Authentication ✅
+- Email-based verification with 6-digit codes
+- HTTP-only cookie sessions (24hr expiration)
+- Email whitelist protection (hardcoded in `send-code/route.ts`)
+- Admin portal at `/admin` with 3 tabs (Inquiries, Applications, Jobs)
+
+### Phase 2: E1 — Email Notifications ✅
+All transactional emails via Brevo:
+1. Vendor inquiry notification (vendor receives inquiry details)
+2. Planner inquiry confirmation (event owner gets confirmation)
+3. Owner quote notification (job owner notified of new quote)
+4. Vendor quote confirmation (vendor confirms quote submitted)
+5. Applicant decision emails (approval/rejection notifications)
+6. Admin verification codes (email-based admin login)
+
+### Phase 3: E2 — Real Vendor Data ✅
+- Browse page (`/`) fetches vendors from Supabase
+- Vendor detail pages (`/vendors/[slug]`) load from database
+- Admin approval creates vendor record in database
+- Hardcoded `vendors.ts` file removed
+
+### Phase 4: E5 — Quote Acceptance ✅
+- Job detail page shows "Accept" button for pending quotes
+- Accepting quote closes job, rejects other quotes
+- Vendor receives acceptance email with job owner contact
+
+---
+
+## Development Workflow
+
+### Branch Strategy
+
+**Rule: One branch per story**
 
 ```bash
+# Start new story
 git checkout main && git pull origin main
-git checkout -b {branch-name}
-# ... do the work (max 15 min) ...
-npm run build          # must exit 0
+git checkout -b {epic}-{story}-{slug}
+
+# Examples:
+# e6-1-rate-limiting
+# e7-2-vendor-dashboard
+# docs-update-readme
+
+# Do the work (target: < 1 hour per story)
+
+# MUST pass build before pushing
+npm run build
+
+# If build fails, fix it before pushing
+# If tests fail, fix them before pushing
+
+# Push and create PR
 git push origin {branch-name}
-# open PR → merge → delete branch
+
+# Merge to main via PR
+# Delete branch after merge
 ```
 
-Branch naming: `{epic}-{story}-{slug}`
+### Commit Message Format
 
-Examples:
 ```
-e3-1-admin-auth-gate
-e1-2-planner-inquiry-confirm
-e2-1-browse-from-supabase
-cleanup-dead-code
-cleanup-storybook-build
+{type}({scope}): {short description}
+
+Longer explanation if needed (optional).
+- Key change 1
+- Key change 2
+
+Closes #{issue-number}
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation update
+- `refactor`: Code refactoring (no behavior change)
+- `test`: Add/update tests
+- `chore`: Tooling, config, dependencies
+
+**Examples:**
+```
+feat(jobs): Add quote acceptance UI
+fix(admin): Prevent unauthenticated access
+docs(readme): Update deployment instructions
+refactor(api): Extract email template logic
 ```
 
 ---
 
-## Phase 0: Cleanup (Do This First)
+## Code Quality Standards
 
-These are 5–15 minute tasks each. Do them before any new features.
-
-### 0a — Delete dead code
-**Branch:** `cleanup-dead-code`
-
-Delete these files. Verified: nothing live imports them.
-
-| File | Lines | Why It's Dead |
-|---|---|---|
-| `src/components/auth/AuthModal.tsx` | 186 | Zero imports. Was for old login flow. |
-| `src/components/booking/BookingSteps.tsx` | 187 | Replaced by StepIndicator. Never imported. |
-| `src/components/booking/BookingSuccessState.tsx` | 188 | Inline success states in each wizard now. Never imported. |
-| `src/lib/auth.ts` | 233 | Only imported by dead AuthModal.tsx. |
-| `src/lib/experiences.ts` | 79 | Legacy retreat data. Only imported by dead ExperiencePreview. |
-| `src/components/experiences/ExperiencePreview.tsx` | ~60 | Only imports itself + dead experiences.ts. |
-| `src/stories/Header.tsx` | ~40 | Storybook scaffold default. Not a real component. |
-| `src/stories/Button.tsx` | ~25 | Same. |
-| `src/stories/Page.tsx` | ~60 | Same. |
-| `src/stories/header.css` | ~20 | Styles for scaffold Header.tsx. |
-| `src/stories/button.css` | ~20 | Styles for scaffold Button.tsx. |
-| `src/stories/page.css` | ~30 | Styles for scaffold Page.tsx. |
-| `docs/BMAD.md` | 84 | Documents "7DAY" corporate experience product. That product no longer exists. |
-
-After deleting, update any story files that imported from these paths. Then `npm run build` — it must pass.
-
-### 0b — Fix build script
-**Branch:** `cleanup-storybook-build`
-
-In `package.json`, change:
-```json
-"build": "npm run build-storybook && next build"
-```
-To:
-```json
-"build": "next build",
-"build:storybook": "storybook build --output-dir public/storybook"
-```
-
-Add `public/storybook/` to `.gitignore`. Run `git rm -r --cached public/storybook/` to stop tracking those files. Commit. Build must pass.
-
-### 0c — Delete stale branches
-**Branch:** not needed — do directly on main
+### Before Every Commit
 
 ```bash
-git branch -D lead-notifications seo-meta setup sitemap vendor-data vendor-photos
-git push origin --delete lead-notifications seo-meta setup sitemap vendor-data vendor-photos
+# 1. Type check
+npm run build
+
+# 2. Lint
+npm run lint
+
+# 3. Manual smoke test (if UI change)
+npm run dev
+# Test the changed feature manually
 ```
 
-Verify none of these have unmerged work first: `git log main..{branch} --oneline` for each. If any show commits, cherry-pick what's needed before deleting.
+### Code Style
 
-### 0d — Split admin into tab components
-**Branch:** `cleanup-admin-split`
+- **Max file length:** 500 lines (split into smaller files if exceeded)
+- **Component size:** Keep React components < 300 lines
+- **Function complexity:** Max 50 lines per function
+- **Naming:** Descriptive names (no abbreviations unless obvious)
+- **Comments:** Only for non-obvious logic (code should be self-documenting)
 
-Current: `src/app/admin/page.tsx` at 753 lines, all 3 tabs inlined.
+### TypeScript Standards
 
-Target structure:
+```typescript
+// ✅ Do: Use strict types
+interface VendorFormData {
+  businessName: string
+  specialty: string
+  priceMin: number
+  priceMax: number
+}
+
+// ❌ Don't: Use any
+function handleSubmit(data: any) { ... }
+
+// ✅ Do: Use Zod for runtime validation (coming in E6)
+const vendorSchema = z.object({
+  businessName: z.string().min(3).max(100),
+  specialty: z.string().min(10),
+  priceMin: z.number().positive(),
+  priceMax: z.number().positive()
+})
+
+// ✅ Do: Use discriminated unions for status
+type QuoteStatus = 'pending' | 'accepted' | 'rejected'
+
+// ❌ Don't: Use magic strings
+if (quote.status === 'accepted') { ... }  // OK
+if (quote.status === 'approve') { ... }   // Typo, won't be caught
 ```
-src/app/admin/
-├── page.tsx              # Tab state + shared header (~60 lines)
-├── InquiriesTab.tsx      # Inquiries table + detail modal
-├── ApplicationsTab.tsx   # Applications table + detail modal
-└── JobsTab.tsx           # Jobs table + detail modal
-```
-
-Each tab is self-contained: own data fetch, own table, own detail modal. `page.tsx` just renders `{activeTab === 'inquiries' && <InquiriesTab />}` etc. No shared state between tabs except which tab is active.
-
-### 0e — Delete stale PRD docs
-**Branch:** `cleanup-dead-code` (same as 0a, batch it)
-
-Delete everything in `src/app/design-system/docs/`. These are PRDs and architecture docs for the old "7DAY" product. The current product's single source of truth is `docs/backlog.md`.
 
 ---
 
-## Phase 1: E3 — Protect Admin
+## Testing Strategy
 
-Do this before E1. It's the biggest security risk and the smallest fix.
+### Current State (Manual Testing)
 
-| Branch | Task | Minutes |
-|---|---|---|
-| `e3-1-admin-auth-gate` | Email input + code verification UI on `/admin`. No session = no data. | 15 |
-| `e3-2-admin-session` | Store verified session in cookie via API route. `getCurrentAdmin()` checks it. | 10 |
-| `e3-3-admin-service-role` | Move admin data fetches to API routes. Use `SUPABASE_SERVICE_ROLE_KEY` server-side only. | 15 |
+No automated tests yet. All testing is manual:
 
----
+1. **Smoke tests** - Critical paths in `docs/backlog.md`
+2. **Form validation** - Submit empty forms, check errors appear
+3. **Email delivery** - Check Brevo dashboard or console logs
+4. **Admin access** - Verify auth works, whitelist enforced
 
-## Phase 2: E1 — Email Notifications
+### Future (Post-E6)
 
-Foundation for everything else. Single `sendEmail` utility, one template per event.
+- Integration tests for API routes (Vitest + Supertest)
+- E2E tests for critical flows (Playwright)
+- Unit tests for complex logic (Vitest)
 
-| Branch | Task | Minutes |
-|---|---|---|
-| `e1-0-email-setup` | Install `resend`. Create `src/lib/email.ts` with `sendEmail(to, subject, html)`. Add `RESEND_API_KEY` to `.env.local.example`. | 10 |
-| `e1-1-vendor-inquiry-notify` | After inquiry insert, `sendEmail` to vendor with planner's details. | 10 |
-| `e1-2-planner-inquiry-confirm` | Same handler, second `sendEmail` to planner confirming submission. | 5 |
-| `e1-3-owner-quote-notify` | After quote insert, `sendEmail` to job owner with vendor's quote. | 10 |
-| `e1-4-vendor-quote-confirm` | Same handler, second `sendEmail` to vendor confirming receipt. | 5 |
-| `e1-5-applicant-decision` | In admin approve/reject handler, `sendEmail` to applicant with decision. | 10 |
+**Don't write tests yet** — wait until product-market fit is validated.
 
 ---
 
-## Phase 3: E2 — Connect Browse to Real Data
+## Database Operations
 
-The marketplace currently shows hardcoded vendors. This makes it real.
+### Adding New Tables
 
-| Branch | Task | Minutes |
-|---|---|---|
-| `e2-1-browse-from-supabase` | Replace `getAllVendors()` in `/app` with `useEffect` Supabase fetch. Same filter logic, same UI. | 15 |
-| `e2-2-approve-creates-vendor` | In admin approve handler, after status update, insert into `vendors` table with fields mapped from the application. | 15 |
-| `e2-3-vendor-detail-from-db` | `VendorPageClient` fetches by slug from Supabase instead of `vendors.ts`. | 10 |
-| `e2-4-remove-vendors-ts` | Delete `src/lib/vendors.ts`. Fix all imports (HorizontalExperiences, browse page, vendor detail). Build must pass. | 10 |
+1. Update `supabase-schema.sql` with new table DDL
+2. Add TypeScript type to `src/lib/supabase.ts`
+3. Run SQL in Supabase SQL editor (no migrations yet)
+4. Update README with new table documentation
 
----
+### Modifying Existing Tables
 
-## Phase 4: E5 — Quote Acceptance
+```sql
+-- Example: Add new column
+ALTER TABLE vendors ADD COLUMN photo_url TEXT;
 
-Closes the conversion loop on the job board.
-
-| Branch | Task | Minutes |
-|---|---|---|
-| `e5-1-quotes-status-column` | Add `status TEXT DEFAULT 'pending'` to `quotes` table in schema SQL. | 5 |
-| `e5-2-accept-quote-ui` | Accept button per quote in `JobDetailClient`. On click: update status, close job. | 10 |
-| `e5-3-acceptance-email` | After accepting, `sendEmail` to vendor with full event details. | 5 |
-
----
-
-## Conventions (Every New File Must Follow These)
-
-**Colors:** Inline `style={{}}` or Tailwind brackets. Never CSS variables.
-`#F5C842` yellow · `#E8B430` hover · `#3B2A1A` dark brown · `#6B4226` mid brown · `#A0785A` accent · `#FAFAF8` off-white · `#FAF5F0` cream
-
-**Page shell:**
-```tsx
-<div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
-  <Header variant="app" />
-  <div className="max-w-{3xl|4xl|7xl} mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    {/* content */}
-  </div>
-  <Footer />
-</div>
+-- Update TypeScript type
+export interface Vendor {
+  // ... existing fields
+  photo_url?: string | null  // Optional, might be null
+}
 ```
 
-**Form inputs in wizards:** Raw `<input>` with brown focus rings. Do NOT use the `<Input>` UI component (blue rings).
-```tsx
-className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#F5C842] focus:border-[#F5C842] outline-none"
-// error state adds: border-red-300
-```
+### RLS Policies
 
-**Supabase writes:** Dynamic import inside async handler only.
-```tsx
-const { supabase } = await import('@/lib/supabase')
-```
+Current policies are permissive (world-readable/writable for MVP).
 
-**ID generation:** `prefix_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-
-**Modal overlay:** `fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]`
+**Future (E6):** Tighten RLS policies:
+- Vendors: only vendor owner can update
+- Inquiries: only admin can read
+- Jobs: only job owner can update
 
 ---
 
-## What NOT to Do
+## API Route Patterns
 
-- Don't push to main directly. One branch per story.
-- Don't let Vercel be the first to catch build errors. Run `npm run build` locally.
-- Don't add more docs in `design-system/docs/`. The backlog is the source of truth.
-- Don't add tests before product-market fit. Ship, learn, then test.
-- Don't abstract shared code until you have 3+ identical instances.
-- Don't use the `<Input>` UI component in wizards.
-- Don't add payment processing, mobile apps, AI matching, or reviews. See `docs/backlog.md` "What NOT to Build Next" section.
+### Standard API Route Structure
+
+```typescript
+// src/app/api/{resource}/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+
+// Force dynamic rendering (never static)
+export const dynamic = 'force-dynamic'
+
+export async function POST(request: NextRequest) {
+  try {
+    // 1. Parse request body
+    const body = await request.json()
+
+    // 2. Validate input (add Zod in E6)
+    if (!body.required_field) {
+      return NextResponse.json(
+        { error: 'Missing required_field' },
+        { status: 400 }
+      )
+    }
+
+    // 3. Database operation
+    const { data, error } = await supabaseAdmin
+      .from('table_name')
+      .insert({ ...body })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Database error:', error)
+      return NextResponse.json(
+        { error: 'Operation failed' },
+        { status: 500 }
+      )
+    }
+
+    // 4. Side effects (emails, logging, etc.)
+    await sendEmail(...)
+
+    // 5. Return success
+    return NextResponse.json({ success: true, data })
+
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+```
+
+### Admin Routes (Protected)
+
+```typescript
+import { getCurrentAdmin } from '@/lib/admin'
+
+export async function POST(request: NextRequest) {
+  // 1. Verify admin session
+  const admin = await getCurrentAdmin(request)
+  if (!admin) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+
+  // 2. Log admin action (E6 will add audit log)
+  console.log(`[ADMIN ACTION] ${admin.email} performed action`)
+
+  // ... rest of route logic
+}
+```
+
+---
+
+## Email Template Guidelines
+
+### Email Design Principles
+
+1. **Mobile-first** - 90% of emails opened on mobile
+2. **Inline styles** - Email clients strip `<style>` tags
+3. **Brand colors** - Use `#F5C842` (yellow), `#3B2A1A` (brown)
+4. **Clear CTAs** - One primary action per email
+5. **Plain text fallback** - Always include (Brevo handles this)
+
+### Email Template Structure
+
+```typescript
+const html = `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #FAFAF8;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto;">
+        <!-- Header -->
+        <tr>
+          <td style="padding: 40px; background: linear-gradient(135deg, #3B2A1A 0%, #6B4226 100%);">
+            <h1 style="margin: 0; color: #ffffff; font-size: 24px;">Email Title</h1>
+          </td>
+        </tr>
+
+        <!-- Content -->
+        <tr>
+          <td style="padding: 40px; background-color: #ffffff;">
+            <p style="margin: 0 0 16px; color: #1A1A1A; font-size: 16px;">
+              Email content here...
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="padding: 24px 40px; background-color: #FAFAF8; border-top: 1px solid #E5E5E5;">
+            <p style="margin: 0; color: #999999; font-size: 12px; text-align: center;">
+              The Bean Route — Coffee Cart Marketplace<br>
+              Melbourne, Australia
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+`
+
+await sendEmail(recipient, subject, html)
+```
+
+---
+
+## Environment Variables
+
+### Required for Development
+
+```bash
+# .env.local (never commit)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...  # Server-only
+BREVO_API_KEY=xkeysib-...              # Server-only
+```
+
+### Required for Vercel
+
+Same variables as above, set in:
+- Vercel Dashboard → Settings → Environment Variables
+- Check **ALL** environments (Production + Preview + Development)
+
+**Security Rules:**
+- ✅ `NEXT_PUBLIC_*` = embedded in client bundle (safe for public)
+- ❌ `SUPABASE_SERVICE_ROLE_KEY` = bypasses RLS (server-only, never NEXT_PUBLIC_)
+- ❌ `BREVO_API_KEY` = sends emails (server-only, never NEXT_PUBLIC_)
+
+---
+
+## Common Tasks
+
+### Add a New Email Notification
+
+1. Create email template in API route
+2. Call `sendEmail()` from `@/lib/email`
+3. Test locally (check console logs if no BREVO_API_KEY)
+4. Verify in Brevo dashboard after deploy
+
+### Add a New Admin Tab
+
+1. Create `{TabName}Tab.tsx` in `src/app/admin/`
+2. Import in `src/app/admin/page.tsx`
+3. Add tab to navigation array
+4. Add tab content to conditional render
+5. Test with authenticated admin session
+
+### Add a New Database Table
+
+1. Add SQL to `supabase-schema.sql`
+2. Run SQL in Supabase SQL editor
+3. Add TypeScript type to `src/lib/supabase.ts`
+4. Create API route for CRUD operations
+5. Update `docs/backlog.md` and `README.md`
+
+### Debug Production Issues
+
+1. Check Vercel logs (Runtime tab)
+2. Verify env vars are set (Settings → Environment Variables)
+3. Check Brevo dashboard for email delivery status
+4. Check Supabase logs for query errors
+5. Test locally with production env vars
+
+---
+
+## Deployment Checklist
+
+### Before Pushing to Main
+
+- [ ] `npm run build` passes
+- [ ] `npm run lint` passes (or only warnings, no errors)
+- [ ] Manual smoke test of changed feature
+- [ ] Git commit message follows format
+- [ ] No secrets committed (check `.env.local` in `.gitignore`)
+
+### After Merging to Main
+
+- [ ] Vercel build succeeds (check dashboard)
+- [ ] Smoke test on production URL
+- [ ] Check Sentry for new errors (once E6 complete)
+- [ ] Update documentation if API changed
+
+---
+
+## Next Features to Build (Priority Order)
+
+1. **E6-1: Rate Limiting** - Prevent API abuse
+2. **E6-2: Error Logging** - Sentry integration
+3. **E6-3: Admin Audit Log** - Track admin actions
+4. **E6-4: Email Delivery Tracking** - Log sent emails
+5. **E6-5: Data Validation** - Zod schemas for all inputs
+
+See `docs/backlog.md` for full epic breakdown.
+
+---
+
+## Getting Help
+
+1. **"How do I...?"** → Check this file first
+2. **"Build failing?"** → Read error message, check type errors
+3. **"Deployment broken?"** → `docs/VERCEL-TROUBLESHOOTING.md`
+4. **"Email not sending?"** → Check Brevo dashboard, verify API key
+5. **"What's next?"** → `docs/backlog.md` for roadmap
+
+---
+
+## Common Pitfalls to Avoid
+
+❌ **Don't** push directly to main (use branches)
+❌ **Don't** skip the build before pushing
+❌ **Don't** hardcode secrets in code
+❌ **Don't** use `any` type in TypeScript
+❌ **Don't** create files over 500 lines
+❌ **Don't** add features without user validation first
+
+✅ **Do** one story per branch
+✅ **Do** run `npm run build` before every push
+✅ **Do** use environment variables for secrets
+✅ **Do** use strict TypeScript types
+✅ **Do** split large files into smaller modules
+✅ **Do** validate features with real users before building more
+
+---
+
+## Resources
+
+- **Supabase Dashboard:** https://supabase.com/dashboard
+- **Brevo Dashboard:** https://app.brevo.com
+- **Vercel Dashboard:** https://vercel.com/dashboard
+- **Design System:** http://localhost:3000/design-system
+- **Admin Portal:** http://localhost:3000/admin

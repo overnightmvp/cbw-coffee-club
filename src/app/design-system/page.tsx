@@ -43,9 +43,9 @@ export default function DesignSystemPage() {
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
-            <h1 className="text-3xl font-bold text-neutral-900">7DAY Design System</h1>
+            <h1 className="text-3xl font-bold text-neutral-900">The Bean Route Design System</h1>
             <p className="text-neutral-600 mt-2">
-              Complete component library, design guidelines, and product requirements for the 7DAY Australian corporate experience marketplace
+              Complete component library, design guidelines, and product requirements for The Bean Route — Melbourne coffee cart marketplace
             </p>
           </div>
         </div>
@@ -261,13 +261,12 @@ export default function DesignSystemPage() {
                       <CardHeader>
                         <CardTitle>Foundation Documents</CardTitle>
                         <CardDescription>
-                          Original product requirements that guided 7DAY development from concept to production
+                          Original product requirements that guided early development from concept to production (archived for reference)
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="text-sm text-neutral-600 mb-4">
-                          These PRD documents capture the original prompts and vision that shaped 7DAY's evolution 
-                          into a live Australian corporate experience marketplace. Created in collaboration with 
+                          These PRD documents capture the original prompts and vision from an earlier product iteration (archived for reference). Created in collaboration with 
                           <a 
                             href="https://g.co/gemini/share/8f3b8b3e6f66" 
                             target="_blank" 

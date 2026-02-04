@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Post-commit hook to remind updating documentation
+# Copy this to .git/hooks/post-commit and make executable:
+#   cp .hooks/post-commit .git/hooks/post-commit
+#   chmod +x .git/hooks/post-commit
+
+# Get the commit message
+COMMIT_MSG=$(git log -1 --pretty=%B)
+
+# Check if commit contains specific keywords that should trigger doc updates
+if [[ $COMMIT_MSG =~ (feat|fix|refactor|breaking) ]]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📚 DOCUMENTATION REMINDER"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "  You just committed a feature/fix/refactor."
+    echo "  Consider updating these docs if relevant:"
+    echo ""
+    echo "  📄 README.md            - If setup/deployment changed"
+    echo "  📋 docs/backlog.md      - If epic/story status changed"
+    echo "  🛠️  docs/skills.md       - If workflow/patterns changed"
+    echo "  📊 docs/audit-and-backlog.md - If phase completed"
+    echo "  🎨 /design-system page  - If UI components added"
+    echo ""
+    echo "  Quick doc update command:"
+    echo "  → vim docs/backlog.md"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+fi
+
+# Check if feature epic was mentioned (E1, E2, E3, etc.)
+if [[ $COMMIT_MSG =~ E[0-9]+ ]]; then
+    EPIC=$(echo "$COMMIT_MSG" | grep -oE 'E[0-9]+' | head -1)
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🎯 EPIC $EPIC PROGRESS"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "  Update docs/backlog.md to mark story as complete:"
+    echo ""
+    echo "  1. Find $EPIC section"
+    echo "  2. Check off completed acceptance criteria"
+    echo "  3. Add commit hash to story header"
+    echo ""
+    echo "  Example:"
+    echo "  #### $EPIC-1: Story Name ✅ DONE (Commit: $(git rev-parse --short HEAD))"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+fi
+
+# If docs were updated, remind to update lastUpdated dates
+if [[ $COMMIT_MSG =~ docs ]]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📅 UPDATE DATES"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "  You updated docs. Verify these dates are current:"
+    echo ""
+    echo "  docs/backlog.md:         **Last Updated:** $(date +%Y-%m-%d)"
+    echo "  docs/skills.md:          **Last Updated:** $(date +%Y-%m-%d)"
+    echo "  docs/audit-and-backlog.md:  **Date:** $(date +%Y-%m-%d)"
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+fi
+
+exit 0
