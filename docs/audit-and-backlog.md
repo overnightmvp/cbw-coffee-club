@@ -404,72 +404,93 @@ Before deploying or continuing development, verify:
 
 ## 5. Recommended Next Steps
 
-### Option A: Continue Email Notifications (E1)
-**If:** Brevo is configured and you want to complete the notification system
+### Phase 4: Quote Acceptance Workflow (E5)
+**Status:** Ready to start
+**Business Value:** Completes the booking funnel, enables marketplace transactions
 
-1. Complete E1-2 (planner confirmation) — already coded, just merge
-2. Build E1-3 & E1-4 (quote notifications) — ~15 min
-3. Build E1-5 (applicant decision) — ~10 min
-4. Test all email flows end-to-end
+The marketplace now has:
+✅ Admin authentication with email verification codes sent via Brevo
+✅ Complete email notifications (all 6 E1 stories)
+✅ Database-driven vendors (browse, detail, approval flow)
+✅ Job board with quote submission
+✅ Email whitelist for admin access
 
-**Time:** ~30 minutes
-**Outcome:** Complete notification system
+**Next:** Allow job owners to accept vendor quotes and complete bookings.
 
-### Option B: Real Vendor Data (E2)
-**If:** Supabase is configured and you want dynamic marketplace
+#### Implementation Plan
 
-1. Ensure vendors table exists in Supabase
-2. Build E2-1 (browse from DB) — ~15 min
-3. Build E2-2 (approve creates vendor) — ~15 min
-4. Build E2-3 & E2-4 (vendor detail + cleanup) — ~20 min
-5. Optionally seed 6 hardcoded vendors into DB
+**Story E5.1 — Quote Status Column** (~5 min)
+- Add `status` column to quotes table (pending/accepted/rejected)
+- Update TypeScript types in supabase.ts
 
-**Time:** ~50 minutes
-**Outcome:** Scalable vendor management
+**Story E5.2 — Accept Quote UI** (~20 min)
+- Add "Accept" button to JobDetailClient for each pending quote
+- Create API route: PATCH /api/jobs/quotes/[id]/accept
+- Atomic updates: quote.status + job.status + reject other quotes
+- Optimistic UI updates with error handling
 
-### Option C: Infrastructure Setup First
-**If:** You're unsure if Supabase/Brevo are configured
+**Story E5.3 — Quote Acceptance Email** (~15 min)
+- Email vendor when quote accepted
+- Include full job details and owner contact info for coordination
+- Branded template matching other notification emails
 
-1. Create Supabase project (if not exists)
-2. Run schema SQL to create all tables
-3. Get Supabase service role key → `.env.local`
-4. Create Brevo account, get API key → `.env.local`
-5. Test inquiry submission end-to-end
-6. Verify emails send (or log correctly if no API key)
+**Total Time:** ~40 minutes
+**Outcome:** Complete booking funnel from inquiry → quote → acceptance
 
-**Time:** ~20 minutes
-**Outcome:** Verified working infrastructure
+---
+
+### Alternative: Admin & UX Enhancements
+
+If not ready for E5, consider:
+
+1. **Admin improvements**
+   - Activity logging for all admin actions
+   - Vendor application notes/preview before approval
+   - Dashboard analytics (inquiry stats, quote rates)
+
+2. **User experience**
+   - Vendor search/filter improvements
+   - Favorite vendors feature
+   - Quote comparison UI for job owners
+
+3. **Infrastructure**
+   - Rate limiting for API routes
+   - Comprehensive error logging
+   - Integration tests for critical flows
 
 ---
 
 ## 6. Current Branch Status
 
 ```
-Branch: e1-2-planner-inquiry-confirm
-Status: In progress, code written, build attempted
-Issue: Build error (turbopack module not found - likely transient)
-Recommendation: Clean build and retry, or stash and start fresh
+Branch: main
+Status: All E1 and E2 work merged and complete
+Recent Commits:
+  - aff9147: Send verification code via email
+  - aeba9fc: Email whitelist for admin access
+  - 9839d09: Remove hardcoded vendors.ts completely
+  - 16ce6b7: Fetch vendor detail page from Supabase
+  - 8dffa4c: Create vendor record when application approved
+  - cc5ce72: Browse vendors from Supabase database
+Working Directory: Clean
 ```
 
-### Recovery Steps
+### Next Development Branch
 
 ```bash
-# Option 1: Clean rebuild
-rm -rf .next node_modules package-lock.json
-npm install
-npm run build
+# To start E5 (Quote Acceptance):
+git checkout -b e5-1-quote-status-column
+# Add status column to quotes table
+# Update TypeScript types
+# Test and commit
 
-# Option 2: Stash current work
-git stash
-git checkout main
-git branch -D e1-2-planner-inquiry-confirm
+git checkout -b e5-2-accept-quote-ui
+# Build accept quote functionality
+# Test and commit
 
-# Option 3: Force complete current work
-git add -A
-git commit -m "feat(email): Add planner inquiry confirmation email"
-git checkout main
-git merge e1-2-planner-inquiry-confirm
-npm run build  # Verify clean build on main
+git checkout -b e5-3-acceptance-email
+# Add acceptance email notification
+# Test and commit
 ```
 
 ---
@@ -478,12 +499,13 @@ npm run build  # Verify clean build on main
 
 | Issue | Impact | Priority | Resolution |
 |---|---|---|---|
-| Hardcoded vendors with null emails | E1-1 notifications don't send | Low (MVP) | Fixed when E2 completes |
+| ~~Hardcoded vendors with null emails~~ | ~~E1-1 notifications don't send~~ | ✅ RESOLVED | E2 complete - all vendors from DB |
 | Browserslist outdated | Build warning | Low | Run `npx update-browserslist-db@latest` |
 | Storybook lint warning | Build noise | Low | Add rule override or fix export name |
-| Turbopack error (transient) | Build occasionally fails | Medium | Clean rebuild usually fixes |
-| No integration tests | Manual testing required | Low (pre-PMF) | Add after PMF |
-| npm audit: 19 vulnerabilities | Security warnings | Low | Run `npm audit fix` when safe |
+| No quote acceptance | Job owners can't close deals | **High** | **Start E5 next** |
+| No integration tests | Manual testing required | Medium | Add after E5 completes |
+| npm audit vulnerabilities | Security warnings | Low | Run `npm audit fix` when safe |
+| Admin whitelist in code | Hard to update allowed emails | Medium | Consider env var or DB table |
 
 ---
 
