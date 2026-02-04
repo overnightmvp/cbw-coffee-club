@@ -52,13 +52,16 @@ export function AuthGate({ children }: AuthGateProps) {
         body: JSON.stringify({ email })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to send verification code')
+        // Show specific error message from API
+        throw new Error(data.error || 'Failed to send verification code')
       }
 
       setStep('code')
     } catch (err) {
-      setError('Failed to send verification code. Please try again.')
+      setError(err instanceof Error ? err.message : 'Failed to send verification code. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

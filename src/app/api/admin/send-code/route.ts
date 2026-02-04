@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // Force dynamic rendering - admin API routes should never be static
 export const dynamic = 'force-dynamic'
@@ -19,6 +20,20 @@ export async function POST(request: NextRequest) {
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
+    }
+
+    // Check if email is in admin whitelist
+    const { data: adminUser } = await supabaseAdmin
+      .from('admin_users')
+      .select('id')
+      .eq('email', email.toLowerCase())
+      .single()
+
+    if (!adminUser) {
+      return NextResponse.json(
+        { error: 'This email is not authorized for admin access.' },
+        { status: 403 }
+      )
     }
 
     // Generate 6-digit code

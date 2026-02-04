@@ -115,3 +115,21 @@ CREATE POLICY "jobs_all" ON jobs FOR ALL USING (TRUE) WITH CHECK (TRUE);
 
 ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "quotes_all" ON quotes FOR ALL USING (TRUE) WITH CHECK (TRUE);
+
+-- Admin users whitelist
+CREATE TABLE admin_users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- RLS: Admin table is private (no public access)
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
+-- No public policies - only service role can access
+-- (Admin API routes use supabaseAdmin client with service role key)
+
+-- Seed primary admin
+INSERT INTO admin_users (id, email, name) VALUES
+  ('adm_' || extract(epoch from now())::bigint || '_' || substr(md5(random()::text), 1, 7), 'johnnytoshio@icloud.com', 'Johnny Toshio');

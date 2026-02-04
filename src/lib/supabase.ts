@@ -120,3 +120,10 @@ export type Quote = {
   contact_email: string
   created_at: string
 }
+
+export type AdminUser = {
+  id: string
+  email: string
+  name: string | null
+  created_at: string
+}
