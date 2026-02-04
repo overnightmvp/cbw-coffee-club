@@ -3,16 +3,56 @@
 import React, { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, Button, Badge } from '@/components/ui'
-import { getAllVendors, type Vendor, formatPriceRange } from '@/lib/vendors'
+import { type Vendor, type LegacyVendor, formatVendorPrice } from '@/lib/supabase'
 import { InquiryModal } from '@/components/booking/SimpleBookingModal'
 
 export function VendorCarousel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
-  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null)
+  const [selectedVendor, setSelectedVendor] = useState<LegacyVendor | null>(null)
   const [showInquiryModal, setShowInquiryModal] = useState(false)
-  const vendors = getAllVendors()
+  const [vendors, setVendors] = useState<Vendor[]>([])
+
+  // Fetch vendors from Supabase
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase')
+        const { data } = await supabase
+          .from('vendors')
+          .select('*')
+          .eq('verified', true)
+          .order('created_at', { ascending: false })
+          .limit(10)
+
+        setVendors(data || [])
+      } catch (err) {
+        console.error('Error fetching vendors:', err)
+      }
+    }
+
+    fetchVendors()
+  }, [])
+
+  // Convert database vendor to legacy format for InquiryModal
+  const convertToLegacyVendor = (v: Vendor): LegacyVendor => ({
+    id: v.id,
+    slug: v.slug,
+    businessName: v.business_name,
+    specialty: v.specialty,
+    suburbs: v.suburbs,
+    priceMin: v.price_min,
+    priceMax: v.price_max,
+    capacityMin: v.capacity_min,
+    capacityMax: v.capacity_max,
+    description: v.description || '',
+    contactEmail: v.contact_email,
+    contactPhone: v.contact_phone,
+    website: v.website,
+    imageUrl: v.image_url,
+    tags: v.tags
+  })
 
   const checkScrollability = () => {
     if (scrollContainerRef.current) {
@@ -115,7 +155,7 @@ export function VendorCarousel() {
                 </div>
                 <div className="absolute top-3 right-3">
                   <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-xs font-semibold" style={{ color: '#3B2A1A' }}>
-                    {formatPriceRange(vendor)}
+                    {formatVendorPrice(vendor)}
                   </Badge>
                 </div>
               </div>
@@ -124,7 +164,7 @@ export function VendorCarousel() {
                 <div className="space-y-3">
                   <div>
                     <h4 className="font-semibold text-lg" style={{ color: '#1A1A1A' }}>
-                      {vendor.businessName}
+                      {vendor.business_name}
                     </h4>
                     <p className="text-sm text-neutral-600">{vendor.specialty}</p>
                   </div>
@@ -149,7 +189,7 @@ export function VendorCarousel() {
 
                   {/* Capacity */}
                   <div className="text-xs text-neutral-500">
-                    Serves {vendor.capacityMin}–{vendor.capacityMax} guests
+                    Serves {vendor.capacity_min}–{vendor.capacity_max} guests
                   </div>
 
                   {/* Actions */}
@@ -158,7 +198,7 @@ export function VendorCarousel() {
                       size="sm"
                       className="flex-1 min-h-[44px] bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold touch-manipulation"
                       onClick={() => {
-                        setSelectedVendor(vendor)
+                        setSelectedVendor(convertToLegacyVendor(vendor))
                         setShowInquiryModal(true)
                       }}
                     >

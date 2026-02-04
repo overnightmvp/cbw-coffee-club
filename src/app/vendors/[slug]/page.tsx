@@ -1,38 +1,52 @@
-import { getVendorBySlug, formatPriceRange } from '@/lib/vendors'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import VendorPageClient from './VendorPageClient'
 import JsonLd from '@/components/seo/JsonLd'
 
 const baseUrl = 'https://thebeanroute.com.au'
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const vendor = getVendorBySlug(params.slug)
+  const { data: vendor } = await supabaseAdmin
+    .from('vendors')
+    .select('*')
+    .eq('slug', params.slug)
+    .eq('verified', true)
+    .single()
+
   if (!vendor) return { title: 'Vendor Not Found | The Bean Route' }
+
+  const priceRange = `$${vendor.price_min}–$${vendor.price_max}/hr`
+
   return {
-    title: `${vendor.businessName} — Mobile Coffee Cart | The Bean Route`,
-    description: `${vendor.description} Serving ${vendor.suburbs.join(', ')}. ${formatPriceRange(vendor)} per hour.`,
+    title: `${vendor.business_name} — Mobile Coffee Cart | The Bean Route`,
+    description: `${vendor.description} Serving ${vendor.suburbs.join(', ')}. ${priceRange} per hour.`,
     openGraph: {
-      title: `${vendor.businessName} — Mobile Coffee Cart | The Bean Route`,
+      title: `${vendor.business_name} — Mobile Coffee Cart | The Bean Route`,
       description: vendor.description,
       type: 'website' as const,
     },
   }
 }
 
-export default function VendorPage({ params }: { params: { slug: string } }) {
-  const vendor = getVendorBySlug(params.slug)
+export default async function VendorPage({ params }: { params: { slug: string } }) {
+  const { data: vendor } = await supabaseAdmin
+    .from('vendors')
+    .select('*')
+    .eq('slug', params.slug)
+    .eq('verified', true)
+    .single()
 
   const vendorSchema = vendor
     ? {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
-        name: vendor.businessName,
+        name: vendor.business_name,
         description: vendor.description,
         url: `${baseUrl}/vendors/${vendor.slug}`,
         areaServed: vendor.suburbs.map((suburb: string) => ({
           '@type': 'Place',
           name: `${suburb}, Melbourne, Victoria, Australia`,
         })),
-        priceRange: `$${vendor.priceMin}–$${vendor.priceMax} AUD/hr`,
+        priceRange: `$${vendor.price_min}–$${vendor.price_max} AUD/hr`,
         address: {
           '@type': 'PostalAddress',
           addressLocality: 'Melbourne',
@@ -48,7 +62,7 @@ export default function VendorPage({ params }: { params: { slug: string } }) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
       { '@type': 'ListItem', position: 2, name: 'Browse Vendors', item: `${baseUrl}/app` },
-      { '@type': 'ListItem', position: 3, name: vendor?.businessName || 'Vendor' },
+      { '@type': 'ListItem', position: 3, name: vendor?.business_name || 'Vendor' },
     ],
   }
 

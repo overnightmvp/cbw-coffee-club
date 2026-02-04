@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { type Vendor as LegacyVendor } from '@/lib/vendors'
-import { type Vendor, formatVendorPrice } from '@/lib/supabase'
+import { type Vendor, type LegacyVendor, formatVendorPrice } from '@/lib/supabase'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { Badge, Button } from '@/components/ui'

@@ -32,6 +32,31 @@ export function formatVendorPrice(vendor: Vendor): string {
   return `$${vendor.price_min}–$${vendor.price_max}/hr`
 }
 
+// Legacy vendor type (camelCase) for backward compatibility with components
+// TODO: Eventually migrate all components to use database Vendor type
+export type LegacyVendor = {
+  id: string
+  slug: string
+  businessName: string
+  specialty: string
+  suburbs: string[]
+  priceMin: number
+  priceMax: number
+  capacityMin: number
+  capacityMax: number
+  description: string
+  contactEmail: string | null
+  contactPhone: string | null
+  website: string | null
+  imageUrl: string | null
+  tags: string[]
+}
+
+// Helper function for legacy vendor price formatting
+export function formatPriceRange(vendor: LegacyVendor): string {
+  return `$${vendor.priceMin}–$${vendor.priceMax}/hr`
+}
+
 export type Inquiry = {
   id: string
   vendor_id: string

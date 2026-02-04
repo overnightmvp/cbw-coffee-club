@@ -1,4 +1,4 @@
-import { getAllVendors } from '@/lib/vendors'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thebeanroute.com.au'
 
@@ -15,12 +15,16 @@ const staticPages = [
   { url: '/vendors/register', priority: 0.7 },
 ]
 
-export default function sitemap() {
-  const vendors = getAllVendors()
+export default async function sitemap() {
+  // Fetch verified vendors from database
+  const { data: vendors } = await supabaseAdmin
+    .from('vendors')
+    .select('slug, created_at')
+    .eq('verified', true)
 
-  const vendorPages = vendors.map((vendor) => ({
+  const vendorPages = (vendors || []).map((vendor) => ({
     url: `${baseUrl}/vendors/${vendor.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(vendor.created_at),
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }))

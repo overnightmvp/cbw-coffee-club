@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Card, CardContent, Button } from '@/components/ui'
-import { type Vendor, formatPriceRange } from '@/lib/vendors'
+import { type LegacyVendor as Vendor, formatPriceRange } from '@/lib/supabase'
 
 interface InquiryFormData {
   contactName: string
