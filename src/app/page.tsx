@@ -1,11 +1,15 @@
-'use client'
-
 import React from 'react'
+import type { Metadata } from 'next'
 import { Button, Card, CardContent } from '@/components/ui'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { VendorCarousel } from '@/components/experiences/HorizontalExperiences'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Melbourne Mobile Coffee Carts | The Bean Route',
+  description: 'Book verified mobile coffee carts in Melbourne. Serving CBD, Carlton, Fitzroy & 20+ suburbs. Corporate events, weddings, festivals. Free quotes in 60 seconds.',
+}
 
 export default function Home() {
   return (
