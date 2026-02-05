@@ -115,6 +115,300 @@ refactor(api): Extract email template logic
 
 ---
 
+## Model Selection Framework
+
+### Overview
+
+Before executing any development task, select the optimal Claude model based on task complexity, scope, and token requirements. This framework ensures cost efficiency without compromising quality.
+
+**Available Models:**
+- **Haiku** (200K context) - Fast, cost-effective for simple tasks
+- **Sonnet 4.5** (200K context) - Balanced default for moderate complexity
+- **Opus 4.5** (200K context) - Advanced reasoning for complex architecture
+
+---
+
+### Decision Tree
+
+```
+Task Complexity Assessment:
+
+├─ Simple (Haiku - 200K context)
+│  ├─ Single file edits < 100 lines
+│  ├─ Bug fixes with clear reproduction steps
+│  ├─ Simple refactoring (rename, extract function)
+│  ├─ Documentation updates
+│  ├─ Typo fixes
+│  └─ Estimated tokens: 2K-10K
+
+├─ Moderate (Sonnet 4.5 - 200K context) ✅ Default
+│  ├─ Multi-file features (2-5 files)
+│  ├─ API route creation with tests
+│  ├─ Component development
+│  ├─ Database schema changes
+│  ├─ Test writing for existing code
+│  ├─ Debugging complex issues
+│  └─ Estimated tokens: 10K-50K
+
+└─ Complex (Opus 4.5 - 200K context)
+   ├─ Architecture design and planning
+   ├─ Large refactoring (6+ files)
+   ├─ System integration
+   ├─ Performance optimization with profiling
+   ├─ Complex algorithm design
+   ├─ Security implementation (auth, rate limiting)
+   └─ Estimated tokens: 50K-150K
+```
+
+---
+
+### Token Prediction System
+
+Use this formula to estimate token usage before starting work:
+
+```typescript
+// Token estimation components
+const inputTokens = (
+  (fileCount × averageLOC × 0.3) +  // Code context (1 token ≈ 3.3 chars)
+  (conversationHistory × 100) +      // Chat history
+  (documentationPages × 500)         // Reference docs/search results
+)
+
+const outputTokens = (
+  taskComplexity === 'simple' ? 500 :
+  taskComplexity === 'moderate' ? 2000 :
+  5000  // complex
+)
+
+const totalEstimate = inputTokens + outputTokens
+const withBuffer = totalEstimate × 1.25  // 25% safety margin
+```
+
+**Example Calculation:**
+```typescript
+// Task: Add new admin tab with CRUD operations (3 files, 200 LOC each)
+const inputTokens = (3 × 200 × 0.3) + (10 × 100) + (1 × 500) = 180 + 1000 + 500 = 1,680
+const outputTokens = 2000  // moderate complexity
+const total = 1,680 + 2,000 = 3,680 tokens
+const withBuffer = 3,680 × 1.25 = 4,600 tokens
+
+// Result: Use Sonnet 4.5 (well within 50K moderate range)
+```
+
+---
+
+### Decision Matrix
+
+| Task Type | Model | Est. Tokens | Cost ($/1M) | Speed | Use When |
+|-----------|-------|-------------|-------------|-------|----------|
+| Typo fix | Haiku | 2K-5K | $0.80 | Fastest | Clear, isolated change |
+| Bug fix (single file) | Haiku | 5K-10K | $0.80 | Fastest | Repro steps provided |
+| New component | Sonnet 4.5 | 15K-30K | $3.00 | Fast | Standard patterns |
+| Multi-file feature | Sonnet 4.5 | 30K-50K | $3.00 | Fast | 2-5 files affected |
+| API + tests | Sonnet 4.5 | 20K-40K | $3.00 | Fast | CRUD operations |
+| Architecture design | Opus 4.5 | 50K-100K | $15.00 | Balanced | System-wide decisions |
+| Large refactor (6+ files) | Opus 4.5 | 80K-150K | $15.00 | Balanced | Cross-cutting changes |
+| System integration | Opus 4.5 | 60K-120K | $15.00 | Balanced | Third-party services |
+
+---
+
+### Practical Examples (TBR-Specific)
+
+#### Example 1: Fix TypeScript Error ✅ Haiku
+```
+Task: Fix "Property 'slug' does not exist on type 'Vendor'"
+Files: 1 (lib/vendors.ts)
+Complexity: Simple - add missing property
+
+Token Estimation:
+- Input: 80 LOC × 0.3 + 5 messages × 100 = 524 tokens
+- Output: 500 tokens
+- Total: 1,024 tokens (~$0.001)
+
+Model: Haiku
+Reasoning: Single file, clear error, straightforward fix
+```
+
+#### Example 2: Add New Email Notification ✅ Sonnet 4.5
+```
+Task: Create Brevo email template for quote acceptance
+Files: 2 (api/accept-quote/route.ts, lib/email.ts)
+Complexity: Moderate - follow established email patterns
+
+Token Estimation:
+- Input: 2 files × 150 LOC × 0.3 + 10 messages × 100 + 1 doc × 500 = 1,590 tokens
+- Output: 2,000 tokens
+- Total: 3,590 tokens (~$0.06)
+
+Model: Sonnet 4.5
+Reasoning: Established email pattern, 2 files, moderate complexity
+```
+
+#### Example 3: Build New Admin Tab ✅ Sonnet 4.5
+```
+Task: Create JobsTab component with quote management
+Files: 3 (admin/JobsTab.tsx, admin/page.tsx, types)
+Complexity: Moderate - follow ApplicationsTab/InquiriesTab patterns
+
+Token Estimation:
+- Input: 3 files × 250 LOC × 0.3 + 15 messages × 100 + 1 doc × 500 = 2,225 tokens
+- Output: 2,500 tokens
+- Total: 4,725 tokens (~$0.08)
+
+Model: Sonnet 4.5
+Reasoning: Established tab pattern, 3 files, moderate complexity
+```
+
+#### Example 4: Implement Rate Limiting (E6-1) ✅ Opus 4.5
+```
+Task: Add rate limiting across all API routes
+Files: 8+ (middleware, all route files, config, tests)
+Complexity: Complex - security feature, architectural decisions
+
+Token Estimation:
+- Input: 8 files × 200 LOC × 0.3 + 20 messages × 100 + 3 docs × 500 = 6,980 tokens
+- Output: 5,000 tokens
+- Total: 11,980 tokens (~$0.36)
+
+Model: Opus 4.5
+Reasoning: Security-critical feature affecting all API routes
+```
+
+#### Example 5: Refactor Database Schema ✅ Opus 4.5
+```
+Task: Normalize vendors table and update all queries
+Files: 12+ (schema, API routes, components, types, lib)
+Complexity: Complex - system-wide database changes
+
+Token Estimation:
+- Input: 12 files × 220 LOC × 0.3 + 30 messages × 100 + 2 docs × 500 = 5,792 tokens
+- Output: 6,000 tokens
+- Total: 11,792 tokens (~$0.48)
+
+Model: Opus 4.5
+Reasoning: Database changes affect entire application
+```
+
+#### Example 6: Debug Production Email Issue ✅ Sonnet 4.5 → Opus 4.5
+```
+Task: Investigate why vendor notification emails not sending
+Files: Unknown scope initially
+Complexity: Unknown - start moderate, escalate if needed
+
+Token Estimation (initial):
+- Input: 3 files × 150 LOC × 0.3 + 10 messages × 100 = 1,135 tokens
+- Output: 2,000 tokens
+- Total: 3,135 tokens (~$0.05 with Sonnet)
+
+Model: Start with Sonnet 4.5, escalate to Opus if Brevo integration issues
+Reasoning: Unknown scope, investigate first with Sonnet, escalate if complex
+```
+
+#### Example 7: Add Zod Validation (E6-5) ✅ Sonnet 4.5
+```
+Task: Add Zod schemas to inquiry, application, and job forms
+Files: 3 (vendors/[slug]/page.tsx, vendors/register/page.tsx, jobs/create/page.tsx)
+Complexity: Moderate - repetitive validation pattern
+
+Token Estimation:
+- Input: 3 files × 180 LOC × 0.3 + 10 messages × 100 + 1 doc × 500 = 1,662 tokens
+- Output: 2,000 tokens
+- Total: 3,662 tokens (~$0.06)
+
+Model: Sonnet 4.5
+Reasoning: Established Zod pattern, 3 forms, moderate complexity
+```
+
+---
+
+### Integration Guidelines
+
+#### When to Apply Model Selection
+
+✅ **Always apply before:**
+- Starting any story/epic task
+- Spawning Task agents (specify model: `model: "haiku"`)
+- Complex debugging sessions
+- Reviewing PRs before merge
+- Planning E6+ features
+
+❌ **Skip for:**
+- Quick documentation reads
+- Exploratory codebase research
+- Conversational questions
+
+#### How to Document Model Choice
+
+**In Commit Messages:**
+```bash
+feat(admin): Add jobs tab with quote management [Model: Sonnet 4.5]
+
+- Created JobsTab component following InquiriesTab pattern
+- Added quote display and status management
+- Updated admin page navigation
+
+Reasoning: Moderate complexity, 3 files, established patterns
+Est. tokens: 4.7K | Cost: ~$0.08
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+**In Branch Planning:**
+```markdown
+## E6-1: Rate Limiting
+
+### Model Selection
+- **Model:** Opus 4.5
+- **Reasoning:** Security-critical, affects all 8 API routes, architectural decisions
+- **Files:** middleware, routes, config, tests (8+ files)
+- **Est. tokens:** 12K | **Cost:** ~$0.36
+```
+
+#### Override Mechanisms
+
+**Budget Constraints:**
+- Prioritize Haiku for simple E6 tasks (documentation, small fixes)
+- Use Sonnet for most feature development
+- Reserve Opus for E6 architecture (rate limiting, error logging, audit log)
+
+**Time-Sensitive:**
+- Use Opus for critical production bugs needing fast resolution
+- Accept higher cost for faster feature delivery when needed
+- Parallel Sonnet agents for independent stories
+
+**Learning Tasks:**
+- First implementation of pattern → Sonnet or Opus
+- Repetitions of pattern → Haiku
+- Example: First Brevo email → Sonnet, subsequent emails → Haiku
+
+#### Automatic Decision Triggers
+
+**TBR-Specific Triggers:**
+- New admin tab → Sonnet 4.5 (established pattern)
+- New email template → Haiku (if following existing) or Sonnet (if new pattern)
+- Database table changes → Opus 4.5 (affects many files)
+- New public page → Sonnet 4.5 (moderate complexity)
+- Bug fix in single file → Haiku
+- E6 epic planning → Opus 4.5 (architecture decisions)
+
+---
+
+### TBR Cost Optimization
+
+**Current Development Phase: E6 (Production Hardening)**
+
+Expected model distribution for E6:
+- **Haiku (30%)**: Documentation updates, simple bug fixes, repetitive tasks
+- **Sonnet 4.5 (60%)**: Most feature development, API routes, components
+- **Opus 4.5 (10%)**: Architecture decisions (rate limiting, error logging, audit log)
+
+**Estimated E6 Costs:**
+- Average task: 20K tokens × $3.00/1M = $0.06 (Sonnet)
+- E6 total (20 stories): ~$1.20-$2.00 with optimal model selection
+- Without optimization: ~$3.00-$5.00 (60% cost savings)
+
+---
+
 ## Code Quality Standards
 
 ### Before Every Commit
