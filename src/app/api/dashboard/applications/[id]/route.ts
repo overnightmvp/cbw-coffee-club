@@ -8,8 +8,10 @@ export const dynamic = 'force-dynamic'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   try {
     // Check authentication
     const session = await getCurrentAdmin()
@@ -27,7 +29,7 @@ export async function PATCH(
     const { data, error } = await supabaseAdmin
       .from('vendor_applications')
       .update({ status })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 

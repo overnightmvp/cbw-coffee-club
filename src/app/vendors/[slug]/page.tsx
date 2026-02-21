@@ -4,11 +4,12 @@ import JsonLd from '@/components/seo/JsonLd'
 
 const baseUrl = 'https://thebeanroute.com.au'
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const { data: vendor } = await supabaseAdmin
     .from('vendors')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('verified', true)
     .single()
 
@@ -48,11 +49,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function VendorPage({ params }: { params: { slug: string } }) {
+export default async function VendorPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const { data: vendor } = await supabaseAdmin
     .from('vendors')
     .select('*')
-    .eq('slug', params.slug)
+    .eq('slug', slug)
     .eq('verified', true)
     .single()
 
@@ -272,7 +274,7 @@ export default async function VendorPage({ params }: { params: { slug: string } 
       {vendorSchema && <JsonLd data={vendorSchema} />}
       <JsonLd data={breadcrumbSchema} />
       {faqSchema && <JsonLd data={faqSchema} />}
-      <VendorPageClient slug={params.slug} />
+      <VendorPageClient slug={slug} />
     </>
   )
 }

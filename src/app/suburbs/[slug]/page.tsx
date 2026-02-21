@@ -7,7 +7,7 @@ import JsonLd from '@/components/seo/JsonLd'
 const baseUrl = 'https://thebeanroute.com.au'
 
 interface SuburbPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // Helper to convert slug to display name
@@ -24,7 +24,8 @@ function suburbNameToSlug(name: string): string {
 }
 
 export async function generateMetadata({ params }: SuburbPageProps): Promise<Metadata> {
-  const suburbName = slugToSuburbName(params.slug)
+  const { slug } = await params
+  const suburbName = slugToSuburbName(slug)
 
   // Fetch vendors for this suburb
   const { data: vendors } = await supabaseAdmin
@@ -54,13 +55,14 @@ export async function generateMetadata({ params }: SuburbPageProps): Promise<Met
       title: `${suburbName} Coffee | The Bean Route`,
       description: `${vendors.length} coffee vendors in ${suburbName}, Melbourne`,
       type: 'website',
-      url: `${baseUrl}/suburbs/${params.slug}`,
+      url: `${baseUrl}/suburbs/${slug}`,
     },
   }
 }
 
 export default async function SuburbPage({ params }: SuburbPageProps) {
-  const suburbName = slugToSuburbName(params.slug)
+  const { slug } = await params
+  const suburbName = slugToSuburbName(slug)
 
   // Fetch all vendors serving this suburb
   const { data: vendors } = await supabaseAdmin
@@ -105,7 +107,7 @@ export default async function SuburbPage({ params }: SuburbPageProps) {
     '@type': 'CollectionPage',
     name: `${suburbName} Coffee Shops and Mobile Carts`,
     description: `Complete guide to coffee in ${suburbName}, Melbourne`,
-    url: `${baseUrl}/suburbs/${params.slug}`,
+    url: `${baseUrl}/suburbs/${slug}`,
     about: {
       '@type': 'Place',
       name: `${suburbName}, Melbourne`,
@@ -175,7 +177,7 @@ export default async function SuburbPage({ params }: SuburbPageProps) {
       <JsonLd data={faqSchema} />
       <SuburbPageClient
         suburbName={suburbName}
-        suburbSlug={params.slug}
+        suburbSlug={slug}
         coffeeShops={coffeeShops}
         mobileCarts={mobileCarts}
         nearbySuburbs={nearbySuburbs}

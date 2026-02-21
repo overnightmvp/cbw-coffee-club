@@ -1,4 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {}
+const { withPayload } = require('@payloadcms/next/withPayload')
 
-module.exports = nextConfig
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Your existing Next.js config options
+}
+
+module.exports = withPayload(nextConfig)

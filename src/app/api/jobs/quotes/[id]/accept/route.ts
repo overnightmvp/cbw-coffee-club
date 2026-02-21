@@ -7,10 +7,12 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   try {
-    const quoteId = params.id
+    const quoteId = id
 
     // Fetch the quote to get job_id and vendor details
     const { data: quote, error: quoteError } = await supabaseAdmin

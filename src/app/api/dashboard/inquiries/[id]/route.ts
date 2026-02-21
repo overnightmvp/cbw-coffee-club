@@ -7,8 +7,10 @@ export const dynamic = 'force-dynamic'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
+
   try {
     // Check authentication
     const session = await getCurrentAdmin()
@@ -18,26 +20,26 @@ export async function PATCH(
 
     const { status } = await request.json()
 
-    if (!status || !['open', 'closed'].includes(status)) {
+    if (!status || !['pending', 'contacted', 'converted'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
-    // Update job using service role
+    // Update inquiry using service role
     const { data, error } = await supabaseAdmin
-      .from('jobs')
+      .from('inquiries')
       .update({ status })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
     if (error) {
-      console.error('Error updating job:', error)
-      return NextResponse.json({ error: 'Failed to update job' }, { status: 500 })
+      console.error('Error updating inquiry:', error)
+      return NextResponse.json({ error: 'Failed to update inquiry' }, { status: 500 })
     }
 
     return NextResponse.json({ data })
   } catch (error) {
-    console.error('Error in job update route:', error)
+    console.error('Error in inquiry update route:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

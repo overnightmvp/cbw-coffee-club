@@ -4,7 +4,7 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/design-system', '/storybook'],
+        disallow: ['/admin', '/dashboard', '/design-system', '/storybook'],
       },
     ],
     sitemap: 'https://thebeanroute.com.au/sitemap.xml',

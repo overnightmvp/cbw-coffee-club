@@ -16,10 +16,13 @@ export default buildConfig({
   // Admin configuration
   admin: {
     user: 'users', // Collection for admin users
+    importMap: {
+      baseDir: path.resolve(dirname),
+    },
     meta: {
       titleSuffix: '- The Bean Route CMS',
-      favicon: '/favicon.ico',
     },
+    autoLogin: process.env.NODE_ENV === 'development' ? false : false,
   },
 
   // Collections
