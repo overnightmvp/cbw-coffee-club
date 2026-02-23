@@ -1,4 +1,4 @@
-import * as brevo from '@getbrevo/brevo'
+import { BrevoClient } from '@getbrevo/brevo'
 
 const brevoApiKey = process.env.BREVO_API_KEY
 
@@ -6,10 +6,7 @@ if (!brevoApiKey) {
   console.warn('BREVO_API_KEY not configured. Email sending will be skipped.')
 }
 
-const apiInstance = new brevo.TransactionalEmailsApi()
-if (brevoApiKey) {
-  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, brevoApiKey)
-}
+const client = brevoApiKey ? new BrevoClient({ apiKey: brevoApiKey }) : null
 
 /**
  * Send an email via Brevo (formerly Sendinblue)
@@ -21,7 +18,7 @@ if (brevoApiKey) {
  * @returns Promise resolving to success status
  */
 export async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
-  if (!brevoApiKey) {
+  if (!client || !brevoApiKey) {
     console.log('[EMAIL SKIPPED] No BREVO_API_KEY configured')
     console.log(`To: ${to}`)
     console.log(`Subject: ${subject}`)
@@ -30,13 +27,12 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
   }
 
   try {
-    const sendSmtpEmail = new brevo.SendSmtpEmail()
-    sendSmtpEmail.sender = { email: 'noreply@coffeecartsmelbourne.com', name: 'Coffee Cart Marketplace' }
-    sendSmtpEmail.to = [{ email: to }]
-    sendSmtpEmail.subject = subject
-    sendSmtpEmail.htmlContent = html
-
-    await apiInstance.sendTransacEmail(sendSmtpEmail)
+    await client.transactionalEmails.sendTransacEmail({
+      sender: { email: 'noreply@coffeecartsmelbourne.com', name: 'Coffee Cart Marketplace' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    })
 
     console.log(`[EMAIL SENT] To ${to}: ${subject}`)
     return true

@@ -323,7 +323,7 @@ export default function CoffeeShopsClient({ initialCoffeeShops, suburbs }: Coffe
           </p>
           <Link href="/app">
             <Button className="bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold">
-              Browse Mobile Coffee Carts
+              Browse Mobile Coffee Cart
             </Button>
           </Link>
         </div>

@@ -33,6 +33,7 @@ export default function BrowseVendors() {
         if (error) {
           console.error('Error fetching vendors:', error)
         } else {
+          console.log('Fetched vendors:', data?.map(v => ({ id: v.id, name: v.business_name, type: v.vendor_type })))
           setAllVendors(data || [])
         }
       } catch (err) {
@@ -50,10 +51,27 @@ export default function BrowseVendors() {
   const allTags = Array.from(new Set(allVendors.flatMap(v => v.tags))).sort()
 
   const filtered = allVendors.filter(vendor => {
+    // 1. Vendor Type Filter
     if (filterVendorType && vendor.vendor_type !== filterVendorType) return false
+
+    // 2. Suburb Filter
     if (filterSuburb && !vendor.suburbs.includes(filterSuburb)) return false
+
+    // 3. Tag Filter
     if (filterTag && !vendor.tags.includes(filterTag)) return false
-    if (filterMaxPrice && isMobileCart(vendor) && vendor.price_min > parseInt(filterMaxPrice)) return false
+
+    // 4. Price Filter (Logic differs per type)
+    if (filterMaxPrice) {
+      if (isMobileCart(vendor)) {
+        // Mobile cart price_min vs numeric limit
+        const maxPrice = parseInt(filterMaxPrice)
+        if (!isNaN(maxPrice) && vendor.price_min > maxPrice) return false
+      } else if (isCoffeeShop(vendor)) {
+        // Coffee shop price_range exact match (e.g., "$$")
+        if (vendor.price_range !== filterMaxPrice) return false
+      }
+    }
+
     return true
   })
 
@@ -131,8 +149,8 @@ export default function BrowseVendors() {
                 className="w-full px-3 py-2 border border-neutral-300 rounded-lg text-sm focus:ring-2 focus:ring-[#F5C842] focus:border-[#F5C842]"
               >
                 <option value="">All vendors</option>
-                <option value="mobile_cart">Mobile Carts</option>
-                <option value="coffee_shop">Coffee Shops</option>
+                <option value="mobile_cart">Mobile Cart</option>
+                <option value="coffee_shop">Coffee Shop</option>
               </select>
             </div>
 

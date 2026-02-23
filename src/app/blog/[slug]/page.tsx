@@ -256,9 +256,11 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="max-w-4xl mx-auto bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8 mb-16">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-2">{cta.description}</h2>
-              <Button asChild size="lg" className="mt-4">
-                <Link href={cta.href}>{cta.text}</Link>
-              </Button>
+              <Link href={cta.href}>
+                <Button size="lg" className="mt-4">
+                  {cta.text}
+                </Button>
+              </Link>
             </div>
           </div>
         )}

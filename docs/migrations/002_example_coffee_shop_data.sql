@@ -8,6 +8,7 @@
 
 -- 1. Seven Seeds Coffee Roasters (Carlton)
 INSERT INTO vendors (
+  id,
   vendor_type,
   business_name,
   slug,
@@ -35,6 +36,7 @@ INSERT INTO vendors (
   capacity_min,
   capacity_max
 ) VALUES (
+  'vnd_coffee_7seeds_001',
   'coffee_shop',
   'Seven Seeds Coffee Roasters',
   'seven-seeds-coffee-roasters',
@@ -70,6 +72,7 @@ INSERT INTO vendors (
 
 -- 2. Market Lane Coffee (Prahran)
 INSERT INTO vendors (
+  id,
   vendor_type,
   business_name,
   slug,
@@ -97,6 +100,7 @@ INSERT INTO vendors (
   capacity_min,
   capacity_max
 ) VALUES (
+  'vnd_coffee_marketlane_002',
   'coffee_shop',
   'Market Lane Coffee',
   'market-lane-coffee-prahran',
@@ -132,6 +136,7 @@ INSERT INTO vendors (
 
 -- 3. Brother Baba Budan (CBD)
 INSERT INTO vendors (
+  id,
   vendor_type,
   business_name,
   slug,
@@ -158,6 +163,7 @@ INSERT INTO vendors (
   capacity_min,
   capacity_max
 ) VALUES (
+  'vnd_coffee_bbb_003',
   'coffee_shop',
   'Brother Baba Budan',
   'brother-baba-budan',
@@ -192,6 +198,7 @@ INSERT INTO vendors (
 
 -- 4. Padre Coffee (Brunswick)
 INSERT INTO vendors (
+  id,
   vendor_type,
   business_name,
   slug,
@@ -219,6 +226,7 @@ INSERT INTO vendors (
   capacity_min,
   capacity_max
 ) VALUES (
+  'vnd_coffee_padre_004',
   'coffee_shop',
   'Padre Coffee',
   'padre-coffee-brunswick',
@@ -254,6 +262,7 @@ INSERT INTO vendors (
 
 -- 5. ST. ALi Coffee Roasters (South Melbourne)
 INSERT INTO vendors (
+  id,
   vendor_type,
   business_name,
   slug,
@@ -282,6 +291,7 @@ INSERT INTO vendors (
   capacity_min,
   capacity_max
 ) VALUES (
+  'vnd_coffee_stali_005',
   'coffee_shop',
   'ST. ALi Coffee Roasters',
   'st-ali-coffee-roasters',

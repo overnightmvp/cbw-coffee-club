@@ -34,8 +34,8 @@ export default function SuburbPageClient({
 
   const displayVendors =
     activeTab === 'shops' ? coffeeShops :
-    activeTab === 'carts' ? mobileCarts :
-    allVendors
+      activeTab === 'carts' ? mobileCarts :
+        allVendors
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
@@ -103,36 +103,33 @@ export default function SuburbPageClient({
         <div className="flex items-center gap-2 mb-6 overflow-x-auto">
           <button
             onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${
-              activeTab === 'all'
+            className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${activeTab === 'all'
                 ? 'bg-[#F5C842] text-[#1A1A1A]'
                 : 'bg-white text-neutral-600 hover:bg-neutral-50 border border-neutral-200'
-            }`}
+              }`}
           >
             All ({allVendors.length})
           </button>
           {coffeeShops.length > 0 && (
             <button
               onClick={() => setActiveTab('shops')}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'shops'
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${activeTab === 'shops'
                   ? 'bg-[#F5C842] text-[#1A1A1A]'
                   : 'bg-white text-neutral-600 hover:bg-neutral-50 border border-neutral-200'
-              }`}
+                }`}
             >
-              Coffee Shops ({coffeeShops.length})
+              Coffee Shop ({coffeeShops.length})
             </button>
           )}
           {mobileCarts.length > 0 && (
             <button
               onClick={() => setActiveTab('carts')}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${
-                activeTab === 'carts'
+              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap ${activeTab === 'carts'
                   ? 'bg-[#F5C842] text-[#1A1A1A]'
                   : 'bg-white text-neutral-600 hover:bg-neutral-50 border border-neutral-200'
-              }`}
+                }`}
             >
-              Mobile Carts ({mobileCarts.length})
+              Mobile Cart ({mobileCarts.length})
             </button>
           )}
         </div>
@@ -298,7 +295,7 @@ export default function SuburbPageClient({
               </p>
               <Link href="/coffee-shops">
                 <Button className="bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold">
-                  View Coffee Shops
+                  View Coffee Shop
                 </Button>
               </Link>
             </div>
@@ -313,7 +310,7 @@ export default function SuburbPageClient({
               </p>
               <Link href="/app">
                 <Button className="bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold">
-                  Browse Mobile Carts
+                  Browse Mobile Cart
                 </Button>
               </Link>
             </div>
