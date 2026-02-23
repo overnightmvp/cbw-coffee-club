@@ -40,7 +40,7 @@ export default function ApplicationsTab({ onMessage }: { onMessage: (msg: string
   const fetchApplications = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/applications')
+      const response = await fetch('/api/dashboard/applications')
       if (!response.ok) throw new Error('Failed to fetch applications')
       const { data } = await response.json()
       setApplications(data || [])
@@ -54,7 +54,7 @@ export default function ApplicationsTab({ onMessage }: { onMessage: (msg: string
 
   const updateStatus = async (appId: string, status: Application['status']) => {
     try {
-      const response = await fetch(`/api/admin/applications/${appId}`, {
+      const response = await fetch(`/api/dashboard/applications/${appId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

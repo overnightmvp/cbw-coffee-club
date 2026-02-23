@@ -41,7 +41,7 @@ export default function JobsTab({ onMessage }: { onMessage: (msg: string) => voi
   const fetchJobs = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/jobs')
+      const response = await fetch('/api/dashboard/jobs')
       if (!response.ok) throw new Error('Failed to fetch jobs')
       const { jobs: jobData, quotes: quoteData } = await response.json()
       setJobs(jobData || [])
@@ -56,7 +56,7 @@ export default function JobsTab({ onMessage }: { onMessage: (msg: string) => voi
 
   const updateStatus = async (jobId: string, status: Job['status']) => {
     try {
-      const response = await fetch(`/api/admin/jobs/${jobId}`, {
+      const response = await fetch(`/api/dashboard/jobs/${jobId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

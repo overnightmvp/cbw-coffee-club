@@ -1,0 +1,8 @@
+/* Hide duplicate html/body elements created by Payload's RootLayout */
+/* Payload renders its own html/body but Next.js already provides these */
+/* This CSS hides the visual duplication while keeping the React context working */
+
+.payload-app {
+  /* Ensure Payload admin takes full viewport */
+  min-height: 100vh;
+}

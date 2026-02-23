@@ -19,7 +19,7 @@ export function AuthGate({ children }: AuthGateProps) {
     // Check for existing session via API
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/admin/session')
+        const response = await fetch('/api/dashboard/session')
         if (response.ok) {
           setIsAuthenticated(true)
         }
@@ -46,7 +46,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
     try {
       // Call API route to send verification code
-      const response = await fetch('/api/admin/send-code', {
+      const response = await fetch('/api/dashboard/send-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -80,7 +80,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
     try {
       // Verify code via API route
-      const response = await fetch('/api/admin/verify-code', {
+      const response = await fetch('/api/dashboard/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code })

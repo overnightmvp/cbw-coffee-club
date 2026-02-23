@@ -38,7 +38,7 @@ export default function InquiriesTab({ onMessage }: { onMessage: (msg: string) =
   const fetchLeads = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/admin/inquiries')
+      const response = await fetch('/api/dashboard/inquiries')
       if (!response.ok) throw new Error('Failed to fetch inquiries')
       const { data } = await response.json()
       setLeads(data || [])
@@ -52,7 +52,7 @@ export default function InquiriesTab({ onMessage }: { onMessage: (msg: string) =
 
   const updateStatus = async (leadId: string, status: Inquiry['status']) => {
     try {
-      const response = await fetch(`/api/admin/inquiries/${leadId}`, {
+      const response = await fetch(`/api/dashboard/inquiries/${leadId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
