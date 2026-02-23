@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 // Force dynamic rendering - this route sets cookies
 export const dynamic = 'force-dynamic'
-
-// This should match the Map in send-code route
-// In production, use shared Redis/database
-declare global {
-  var adminCodes: Map<string, { code: string, expires: number }> | undefined
-}
-
-if (!global.adminCodes) {
-  global.adminCodes = new Map()
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,15 +12,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing email or code' }, { status: 400 })
     }
 
-    const stored = global.adminCodes?.get(email.toLowerCase())
+    // Verify code against database
+    const { data: stored, error: fetchError } = await supabaseAdmin
+      .from('admin_verification_codes')
+      .select('code, expires_at')
+      .eq('email', email.toLowerCase())
+      .single()
 
-    if (!stored) {
+    if (fetchError || !stored) {
       return NextResponse.json({ error: 'No code found for this email' }, { status: 401 })
     }
 
     // Check expiration
-    if (stored.expires < Date.now()) {
-      global.adminCodes?.delete(email.toLowerCase())
+    if (new Date(stored.expires_at).getTime() < Date.now()) {
+      await supabaseAdmin.from('admin_verification_codes').delete().eq('email', email.toLowerCase())
       return NextResponse.json({ error: 'Code expired' }, { status: 401 })
     }
 
@@ -39,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Clear the used code
-    global.adminCodes?.delete(email.toLowerCase())
+    await supabaseAdmin.from('admin_verification_codes').delete().eq('email', email.toLowerCase())
 
     // Create session cookie
     const session = {

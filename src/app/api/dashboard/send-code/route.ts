@@ -5,16 +5,6 @@ import { sendEmail } from '@/lib/email'
 // Force dynamic rendering - admin API routes should never be static
 export const dynamic = 'force-dynamic'
 
-// Simple in-memory store for verification codes (MVP only)
-// In production, use Redis or database
-declare global {
-  var adminCodes: Map<string, { code: string, expires: number }> | undefined
-}
-
-if (!global.adminCodes) {
-  global.adminCodes = new Map()
-}
-
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json()
@@ -40,11 +30,21 @@ export async function POST(request: NextRequest) {
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString()
 
-    // Store code with 10-minute expiration
-    global.adminCodes?.set(email.toLowerCase(), {
-      code,
-      expires: Date.now() + 10 * 60 * 1000
-    })
+    // Store code in database with 10-minute expiration
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString()
+
+    const { error: upsertError } = await supabaseAdmin
+      .from('admin_verification_codes')
+      .upsert({
+        email: email.toLowerCase(),
+        code,
+        expires_at: expiresAt
+      })
+
+    if (upsertError) {
+      console.error('Error storing verification code:', upsertError)
+      return NextResponse.json({ error: 'Failed to generate verification code' }, { status: 500 })
+    }
 
     // Send verification code via email
     const subject = 'Your Admin Verification Code'
