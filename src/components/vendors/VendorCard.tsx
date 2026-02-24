@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { type Vendor, type VendorType, formatVendorPrice, isCoffeeShop, isMobileCart } from '@/lib/supabase'
-import { Badge } from '@/components/ui'
+import { Badge, Card, CardContent } from '@/components/ui'
 import { OpenNowBadge } from '@/components/vendors/OpeningHoursDisplay'
 
 interface VendorCardProps {
@@ -25,38 +25,41 @@ export function VendorCard({
     const isBari = vendor.vendor_type === 'barista'
 
     return (
-        <article className={`bg-white rounded-2xl border border-neutral-200 overflow-hidden transition-all ${variant === 'full' ? 'hover:shadow-md' : 'shadow-none'}`}>
+        <Card className={`overflow-hidden transition-all ${variant === 'full' ? 'hover:shadow-md' : 'shadow-none'}`} data-testid="vendor-card">
             {/* Card Image / Hero section */}
-            <div className={`relative ${variant === 'full' ? 'h-40' : 'h-32'}`} style={{
-                background: vendor.image_url
-                    ? `url(${vendor.image_url}) center/cover no-repeat`
-                    : 'linear-gradient(135deg, #3B2A1A 0%, #6B4226 100%)'
-            }}>
+            <div
+                className={`relative ${variant === 'full' ? 'h-40' : 'h-32'} bg-gradient-to-br from-brown-700 to-[#6B4226]`}
+                style={vendor.image_url ? {
+                    backgroundImage: `url(${vendor.image_url})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                } : undefined}
+            >
                 {!vendor.image_url && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full border-2 border-[#A0785A] flex items-center justify-center bg-[#3B2A1A]/50 backdrop-blur-sm">
+                        <div className="w-14 h-14 rounded-full border-2 border-[#A0785A] flex items-center justify-center bg-brown-700/50 backdrop-blur-sm">
                             <span className="text-2xl">☕</span>
                         </div>
                     </div>
                 )}
 
                 <div className="absolute top-3 right-3">
-                    <span className="bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider" style={{ color: '#3B2A1A' }}>
+                    <span className="bg-white/90 backdrop-blur-sm text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider text-brown-700">
                         {isShop ? (vendor.price_range || '$$') : formatVendorPrice(vendor as Vendor)}
                     </span>
                 </div>
 
                 <div className="absolute top-3 left-3">
-                    <span className="bg-[#F5C842] text-[#1A1A1A] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <span className="bg-primary-400 text-neutral-900 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                         {isShop ? 'Coffee Shop' : isBari ? 'Barista' : 'Mobile Cart'}
                     </span>
                 </div>
             </div>
 
             {/* Card Content */}
-            <div className="p-5">
+            <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="text-lg font-bold truncate" style={{ color: '#1A1A1A' }}>{vendor.business_name || 'Business Name'}</h3>
+                    <h3 className="text-lg font-bold truncate text-neutral-900">{vendor.business_name || 'Business Name'}</h3>
                     {isShop && vendor.opening_hours && <OpenNowBadge hours={vendor.opening_hours} />}
                 </div>
                 <p className="text-sm text-neutral-500 mb-3 font-medium">{vendor.specialty || 'Your specialty here'}</p>
@@ -101,16 +104,16 @@ export function VendorCard({
                     <div className="flex gap-2">
                         <button
                             onClick={() => onActionClick?.(vendor)}
-                            className="flex-1 bg-[#F5C842] text-[#1A1A1A] py-2.5 rounded-xl text-xs font-bold hover:bg-[#E8B430] transition-colors active:scale-95 shadow-sm"
+                            className="flex-1 bg-primary-400 text-brown-700 py-2.5 rounded-xl text-xs font-bold hover:bg-primary-500 transition-colors active:scale-95 shadow-sm min-h-[44px]"
                         >
                             {actionLabel}
                         </button>
-                        <button className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-bold text-neutral-600 hover:bg-neutral-50 transition-all">
+                        <button className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-bold text-neutral-600 hover:bg-neutral-50 transition-all min-h-[44px]">
                             View
                         </button>
                     </div>
                 )}
-            </div>
-        </article>
+            </CardContent>
+        </Card>
     )
 }

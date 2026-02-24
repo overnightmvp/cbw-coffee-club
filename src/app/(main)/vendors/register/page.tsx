@@ -248,19 +248,19 @@ export default function VendorRegister() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+      <div className="min-h-screen bg-[#FAFAF8]">
         <Header variant="app" />
         <div className="max-w-md mx-auto px-4 py-32 text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: '#F5C842' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 bg-primary-400">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold mb-3" style={{ color: '#1A1A1A' }}>Your application is in</h2>
+          <h2 className="text-2xl font-bold mb-3 text-neutral-900">Your application is in</h2>
           <p className="text-neutral-600 mb-8">
             We&apos;ll review your details and get back to {formData.contactEmail} within 24 hours.
           </p>
-          <Link href="/app" className="inline-block text-sm font-semibold" style={{ color: '#3B2A1A' }}>
+          <Link href="/app" className="inline-block text-sm font-semibold text-brown-700">
             Browse the marketplace →
           </Link>
         </div>
@@ -273,11 +273,11 @@ export default function VendorRegister() {
     `w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-[#F5C842] focus:border-[#F5C842] outline-none ${errors[field] ? 'border-red-300' : 'border-neutral-300'}`
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+    <div className="min-h-screen bg-[#FAFAF8]">
       <Header variant="app" />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Join the marketplace</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-neutral-900">Join the marketplace</h1>
           <p className="text-neutral-600 text-sm">Get listed on The Bean Route in a few minutes.</p>
         </div>
 
@@ -294,7 +294,7 @@ export default function VendorRegister() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-3" style={{ color: '#1A1A1A' }}>What kind of vendor are you?</label>
+              <label className="block text-sm font-medium mb-3 text-neutral-900">What kind of vendor are you?</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { id: 'mobile_cart', label: 'Mobile Cart', icon: '🚐' },
@@ -308,14 +308,14 @@ export default function VendorRegister() {
                     className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${formData.vendorType === type.id ? 'border-[#F5C842] bg-[#FAF5F0]' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}
                   >
                     <span className="text-2xl mb-2">{type.icon}</span>
-                    <span className="text-sm font-semibold" style={{ color: '#1A1A1A' }}>{type.label}</span>
+                    <span className="text-sm font-semibold" className="text-neutral-900">{type.label}</span>
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label htmlFor="businessName" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>
+              <label htmlFor="businessName" className="block text-sm font-medium mb-1.5 text-neutral-900">
                 {formData.vendorType === 'barista' ? 'Display Name / Name' : 'Business name'}
               </label>
               <input
@@ -329,7 +329,7 @@ export default function VendorRegister() {
               {errors.businessName && <p className="text-red-500 text-xs mt-1">{errors.businessName}</p>}
             </div>
             <div>
-              <label htmlFor="specialty" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Specialty</label>
+              <label htmlFor="specialty" className="block text-sm font-medium mb-1.5 text-neutral-900">Specialty</label>
               <input
                 id="specialty"
                 type="text"
@@ -341,7 +341,7 @@ export default function VendorRegister() {
               {errors.specialty && <p className="text-red-500 text-xs mt-1">{errors.specialty}</p>}
             </div>
             <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Description</label>
+              <label htmlFor="description" className="block text-sm font-medium mb-1.5 text-neutral-900">Description</label>
               <textarea
                 id="description"
                 placeholder="Tell us about your coffee cart — what makes you special, your setup, your story…"
@@ -359,7 +359,7 @@ export default function VendorRegister() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Vendor Photo</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-900">Vendor Photo</label>
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-2xl bg-neutral-100 border-2 border-dashed border-neutral-300 flex items-center justify-center overflow-hidden flex-shrink-0">
                   {imagePreview ? (
@@ -389,7 +389,7 @@ export default function VendorRegister() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>{formData.vendorType === 'coffee_shop' ? 'Shop Address' : 'Primary Base Location'}</label>
+              <label className="block text-sm font-medium mb-1.5 text-neutral-900">{formData.vendorType === 'coffee_shop' ? 'Shop Address' : 'Primary Base Location'}</label>
               <LocationAutocomplete
                 value={formData.physical_address}
                 onChange={val => updateField('physical_address', val)}
@@ -411,7 +411,7 @@ export default function VendorRegister() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Suburbs you serve</label>
+              <label className="block text-sm font-medium mb-2 text-neutral-900">Suburbs you serve</label>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                 {SUBURBS.map(suburb => (
                   <label key={suburb} htmlFor={`suburb-${suburb}`} className="flex items-center gap-2 cursor-pointer">
@@ -421,7 +421,7 @@ export default function VendorRegister() {
                       checked={formData.suburbs.includes(suburb)}
                       onChange={() => toggleArrayField('suburbs', suburb)}
                       className="w-4 h-4 rounded"
-                      style={{ accentColor: '#F5C842' }}
+                      className="accent-primary-400"
                     />
                     <span className="text-xs text-neutral-600">{suburb}</span>
                   </label>
@@ -431,7 +431,7 @@ export default function VendorRegister() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>
+              <label className="block text-sm font-medium mb-2 text-neutral-900">
                 {formData.vendorType === 'barista' ? 'Hourly Rate ($/hr)' : 'Price range ($/hr)'}
               </label>
               <div className="flex items-center gap-3">
@@ -461,7 +461,7 @@ export default function VendorRegister() {
 
             {formData.vendorType !== 'barista' && (
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Capacity (guests)</label>
+                <label className="block text-sm font-medium mb-2 text-neutral-900">Capacity (guests)</label>
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <input
@@ -489,7 +489,7 @@ export default function VendorRegister() {
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Event types</label>
+              <label className="block text-sm font-medium mb-2 text-neutral-900">Event types</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {EVENT_TYPES.map(type => (
                   <label key={type} htmlFor={`event-type-${type}`} className="flex items-center gap-2 cursor-pointer">
@@ -499,7 +499,7 @@ export default function VendorRegister() {
                       checked={formData.eventTypes.includes(type)}
                       onChange={() => toggleArrayField('eventTypes', type)}
                       className="w-4 h-4 rounded"
-                      style={{ accentColor: '#F5C842' }}
+                      className="accent-primary-400"
                     />
                     <span className="text-xs text-neutral-600">{type}</span>
                   </label>
@@ -515,23 +515,23 @@ export default function VendorRegister() {
           <div className="space-y-5">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="contactName" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Your name</label>
+                <label htmlFor="contactName" className="block text-sm font-medium mb-1.5 text-neutral-900">Your name</label>
                 <input id="contactName" type="text" value={formData.contactName} onChange={e => updateField('contactName', e.target.value)} className={inputClass('contactName')} />
                 {errors.contactName && <p className="text-red-500 text-xs mt-1">{errors.contactName}</p>}
               </div>
               <div>
-                <label htmlFor="contactEmail" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Email</label>
+                <label htmlFor="contactEmail" className="block text-sm font-medium mb-1.5 text-neutral-900">Email</label>
                 <input id="contactEmail" type="email" value={formData.contactEmail} onChange={e => updateField('contactEmail', e.target.value)} className={inputClass('contactEmail')} />
                 {errors.contactEmail && <p className="text-red-500 text-xs mt-1">{errors.contactEmail}</p>}
               </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="contactPhone" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Phone <span className="text-neutral-400 font-normal">(optional)</span></label>
+                <label htmlFor="contactPhone" className="block text-sm font-medium mb-1.5 text-neutral-900">Phone <span className="text-neutral-400 font-normal">(optional)</span></label>
                 <input id="contactPhone" type="tel" value={formData.contactPhone} onChange={e => updateField('contactPhone', e.target.value)} className={inputClass('contactPhone')} />
               </div>
               <div>
-                <label htmlFor="website" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Website <span className="text-neutral-400 font-normal">(optional)</span></label>
+                <label htmlFor="website" className="block text-sm font-medium mb-1.5 text-neutral-900">Website <span className="text-neutral-400 font-normal">(optional)</span></label>
                 <input id="website" type="url" value={formData.website} onChange={e => updateField('website', e.target.value)} className={inputClass('website')} />
               </div>
             </div>
@@ -539,7 +539,7 @@ export default function VendorRegister() {
             {/* Review summary */}
             <div className="space-y-4 pt-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400" style={{ color: '#3B2A1A' }}>Marketplace Preview</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-brown-700">Marketplace Preview</h3>
                 <span className="text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded italic">Draft</span>
               </div>
 
@@ -575,15 +575,14 @@ export default function VendorRegister() {
             </button>
           )}
           {step < 3 ? (
-            <button onClick={handleNext} className="px-6 py-2 text-sm font-semibold rounded-lg text-[#1A1A1A] hover:opacity-90" style={{ backgroundColor: '#F5C842' }}>
+            <button onClick={handleNext} className="px-6 py-2 text-sm font-semibold rounded-lg text-brown-700 bg-primary-400 hover:bg-primary-500 transition-colors">
               Continue
             </button>
           ) : (
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full px-6 py-2.5 text-sm font-semibold rounded-lg text-[#1A1A1A] hover:opacity-90 disabled:opacity-60"
-              style={{ backgroundColor: '#F5C842' }}
+              className="w-full px-6 py-2.5 text-sm font-semibold rounded-lg text-brown-700 bg-primary-400 hover:bg-primary-500 disabled:opacity-60 transition-colors"
             >
               {isSubmitting ? 'Submitting…' : 'Submit Application'}
             </button>

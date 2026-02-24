@@ -90,7 +90,7 @@ export function VendorCarousel() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: '#1A1A1A' }}>
+          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">
             Featured vendors
           </h3>
           <p className="text-neutral-600 mt-1">
@@ -135,8 +135,7 @@ export function VendorCarousel() {
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth pb-4 px-1 relative"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth pb-4 px-1 relative [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {vendors.map((vendor) => (
             <Card
@@ -145,16 +144,16 @@ export function VendorCarousel() {
               padding="none"
             >
               {/* Card Image / Placeholder */}
-              <div className="relative h-44" style={{ background: 'linear-gradient(135deg, #3B2A1A 0%, #6B4226 100%)' }}>
+              <div className="relative h-44 bg-gradient-to-br from-brown-700 to-[#6B4226]">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 rounded-full border-2 border-[#A0785A] flex items-center justify-center">
-                    <svg className="w-7 h-7" fill="none" stroke="#F5C842" viewBox="0 0 24 24">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" className="text-primary-400" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                 </div>
                 <div className="absolute top-3 right-3">
-                  <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-xs font-semibold" style={{ color: '#3B2A1A' }}>
+                  <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-xs font-semibold text-brown-700">
                     {formatVendorPrice(vendor)}
                   </Badge>
                 </div>
@@ -163,7 +162,7 @@ export function VendorCarousel() {
               <CardContent className="p-4">
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-semibold text-lg" style={{ color: '#1A1A1A' }}>
+                    <h4 className="font-semibold text-lg text-neutral-900">
                       {vendor.business_name}
                     </h4>
                     <p className="text-sm text-neutral-600">{vendor.specialty}</p>
@@ -196,7 +195,8 @@ export function VendorCarousel() {
                   <div className="flex gap-2 pt-1">
                     <Button
                       size="sm"
-                      className="flex-1 min-h-[44px] bg-[#F5C842] text-[#1A1A1A] hover:bg-[#E8B430] font-semibold touch-manipulation"
+                      variant="primary"
+                      className="flex-1 min-h-[44px] font-semibold touch-manipulation"
                       onClick={() => {
                         setSelectedVendor(convertToLegacyVendor(vendor))
                         setShowInquiryModal(true)
@@ -215,12 +215,6 @@ export function VendorCarousel() {
             </Card>
           ))}
         </div>
-
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
       </div>
 
       {/* Inquiry Modal */}
