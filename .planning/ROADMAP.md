@@ -21,8 +21,8 @@
 **Plans:** 4 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Content infrastructure setup (blog route validation, internal linking matrix, venue data)
-- [ ] 01-02-PLAN.md — Venue spotlights batch (write & publish 10 spotlight posts)
+- [x] 01-01-PLAN.md — Content infrastructure setup (blog route validation, internal linking matrix, venue data)
+- [x] 01-02-PLAN.md — Venue spotlights batch (write & publish 10 spotlight posts)
 - [ ] 01-03-PLAN.md — Location guides batch (write & publish 7 location guides)
 - [ ] 01-04-PLAN.md — How-to & education content (write & publish 5 how-to + 8 coffee education posts)
 
@@ -118,4 +118,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-02-23 - Phase 1 plans created*
+*Last updated: 2026-02-24 - Plan 01-02 complete (venue spotlights drafted)*
