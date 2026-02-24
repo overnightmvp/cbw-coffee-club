@@ -9,21 +9,24 @@
 ## Current Position
 
 **Phase:** 02-Design-System-UX
-**Current Plan:** 02 of 5 (shadcn/ui foundation complete)
+**Current Plan:** 04 of 5 (landing page & onboarding complete)
 **Status:** Executing Phase 2 plans
 
-**Progress:** [██████░░░░] 56%
+**Progress:** [███████░░░] 67%
 
 ## Recent Decisions
 
 ### Phase 2: Design System & UX Optimization (ACTIVE - Days 31-40)
 - **shadcn/ui strategy:** Tailwind config approach (not CSS variables) for light-mode-only Phase 2 - simpler, defer dark mode to Phase 5
 - **Input height h-12 (48px):** WCAG 2.1 Level AA compliance (44px minimum + 4px margin) for all touch targets
+- **Button lg size h-12 (48px):** Updated from h-10 for WCAG compliance and consistent touch targets
 - **Flow diagrams:** Markdown + Mermaid (version-controlled) vs Figma - no external dependencies, git-trackable
 - **Flow priorities:** Vendor registration (mobile broken) → Event organizer inquiry (mobile broken)
 - **Focus areas:** Visual clarity, mobile optimization, form friction reduction, flow diagrams
 - **Onboarding fixes:** Landing page clarity (mission/value/CTA/proof), post-reg gaps (feedback/approval/next steps)
 - **Testing:** E2E (Playwright) focus on critical flows, form validation, mobile responsiveness
+- **Modal success state:** Chosen over page redirect for faster feedback and better UX with confetti
+- **24-48 hour approval timeline:** Explicitly stated in success modal to set clear expectations
 
 ### Phase 1: Content Strategy (Confirmed)
 - Payload CMS selected for blog backend (allows non-dev publishing)
@@ -69,11 +72,12 @@ None currently tracked. Todos should be created when roadmap is broken into phas
 | Phase 01 P03 | 9 | 2 tasks | 5 files |
 | Phase 01-Chadstone-Deep-Dive P04 | 273 | 2 tasks | 13 files |
 | Phase 02 P01 | 8 | 2 tasks | 12 files |
+| Phase 02 P04 | 7 | 3 tasks | 10 files |
 
 ## Session Continuity
 
-**Last session:** 2026-02-24T16:13:56.052Z
-**Stopped at:** Completed 02-01-PLAN.md (shadcn/ui foundation + flow diagrams)
+**Last session:** 2026-02-24T16:25:23.286Z
+**Stopped at:** Completed 02-04-PLAN.md
 **Resume file:** None
 
 ---
