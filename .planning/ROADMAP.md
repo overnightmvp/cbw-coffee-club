@@ -18,7 +18,7 @@
 
 **Content Distribution:** ~30 posts
 
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 
 Plans:
 - [x] 01-01-PLAN.md — Content infrastructure setup (blog route validation, internal linking matrix, venue data)
@@ -33,7 +33,29 @@ Plans:
 
 ---
 
-## Phase 2: Expansion to Knox/Notting Hill/Bentleigh (Days 31-60)
+## Phase 2: Design System & UX Optimization (Days 31-40)
+
+**Goal:** Implement consistent design system using shadcn/ui, optimize all user flows, and address onboarding/app usage blind spots without restructuring existing code.
+
+**Scope:**
+- Implement shadcn/ui library for design consistency
+- Map and optimize all critical user flows (vendor registration, event organizer inquiry, admin access)
+- Identify and fix onboarding friction points
+- Simplify testing approach with component breakdown
+- Improve overall UX across public site, admin portal, and blog
+
+**Plans:** TBD (discuss-phase will determine)
+
+**Success Criteria:**
+- shadcn/ui fully integrated and applied consistently
+- All user flows documented and optimized
+- Onboarding experience improved with reduced friction
+- Testing infrastructure simplified with reusable components
+- UX blind spots identified and resolved
+
+---
+
+## Phase 3: Expansion to Knox/Notting Hill/Bentleigh (Days 41-70)
 
 **Goal:** Scale content to adjacent suburbs with consistent format, refined workflow, and optimization based on Phase 1 performance data.
 
@@ -52,7 +74,7 @@ Plans:
 
 ---
 
-## Phase 3: Broader Coverage & Meta-Content (Days 61-90)
+## Phase 4: Broader Coverage & Meta-Content (Days 71-90)
 
 **Goal:** Complete geographic coverage and establish authority through meta-content (best of all areas, trending topics, evergreen resources).
 
@@ -73,7 +95,7 @@ Plans:
 
 ---
 
-## Phase 4: Execution, Optimization & Launch Prep (Days 1-90 concurrent)
+## Phase 5: Execution, Optimization & Launch Prep (Days 1-90 concurrent)
 
 **Goal:** Manage daily content publication, SEO optimization, growth loop activation, and platform refinements.
 
@@ -99,9 +121,11 @@ Plans:
 | Milestone | Target Date | Metric |
 |-----------|-------------|--------|
 | Phase 1 Complete (30 posts) | Day 30 | 30 blog posts live, indexed by Google |
-| Phase 2 Start (Workflow refined) | Day 31 | Batch writing process validated, metrics reviewed |
-| Phase 2 Complete (60 total) | Day 60 | 60 blog posts live, organic traffic measurable |
-| Phase 3 Complete (90 total) | Day 90 | 90 blog posts live, growth loop validated |
+| Phase 2 Start (Design System) | Day 31 | shadcn/ui implementation begins |
+| Phase 2 Complete (Design System) | Day 40 | Design system consistent, flows optimized, UX improved |
+| Phase 3 Start (Knox expansion) | Day 41 | Batch writing process validated, metrics reviewed |
+| Phase 3 Complete (60 total) | Day 70 | 60 blog posts live, organic traffic measurable |
+| Phase 4 Complete (90 total) | Day 90 | 90 blog posts live, growth loop validated |
 | Growth Loop Activated | Day 30-45 | Free coffee ads live, generating registrations |
 | SEO Authority Established | Day 60+ | Primary keywords ranking, organic discovery working |
 
@@ -118,4 +142,4 @@ Plans:
 
 ---
 
-*Last updated: 2026-02-24 - Plan 01-02 complete (venue spotlights drafted)*
+*Last updated: 2026-02-24 - Inserted Phase 2 (Design System & UX Optimization)*
