@@ -199,6 +199,48 @@ test.describe('Section 8: Admin Portal (/dashboard)', () => {
         // Check for login text or email field
         await expect(page.getByText(/Admin Portal/i).or(page.getByPlaceholder(/Email/i))).toBeVisible();
     });
+
+    test('should load without formatDate import errors', async ({ page }) => {
+        // Collect console errors
+        const consoleErrors: string[] = [];
+        page.on('console', (msg) => {
+            if (msg.type() === 'error') {
+                consoleErrors.push(msg.text());
+            }
+        });
+
+        // Navigate to dashboard
+        await page.goto('/dashboard');
+        await page.waitForLoadState('networkidle');
+
+        // Check that there are no formatDate related errors
+        const formatDateErrors = consoleErrors.filter((err) =>
+            err.includes('formatDate') ||
+            err.includes('not exported') ||
+            err.includes('cannot find')
+        );
+
+        expect(formatDateErrors).toHaveLength(0);
+    });
+
+    test('dashboard components render without breaking', async ({ page }) => {
+        await page.goto('/dashboard');
+        await page.waitForLoadState('networkidle');
+
+        // Verify the page loaded successfully
+        const adminContent = page.getByText(/Admin Portal/i).or(page.getByPlaceholder(/Email/i));
+        await expect(adminContent).toBeVisible();
+
+        // If there are tabs visible (authenticated), check they render
+        const tabs = page.getByRole('tab');
+        const tabCount = await tabs.count();
+
+        if (tabCount > 0) {
+            // Tabs should be accessible without errors
+            const firstTab = tabs.first();
+            await expect(firstTab).toBeVisible();
+        }
+    });
 });
 
 test.describe('Section 9: Content Pages', () => {

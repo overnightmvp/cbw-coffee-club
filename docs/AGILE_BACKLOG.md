@@ -18,6 +18,11 @@ This is the centralized source of truth for all current and future work on The B
 ## 🟡 Epic 2: Core Conversion Optimization (Priority: High)
 *Goal: Improve the onboarding and booking rates.*
 
+**Completed:**
+- [x] **UI Component Naming Standardization**: Standardized component file casing (button.tsx, card.tsx, etc.) to fix webpack warnings on case-insensitive filesystems.
+- [x] **formatDate Utility Function**: Added missing `formatDate` export to `@/lib/utils.ts` for dashboard date formatting.
+
+**Pending:**
 - [ ] **Vendor Image Support**: Allow vendors to upload at least one "hero" image during registration.
 - [ ] **Job Management Link**: Send a secure "Manage Job" link to customers via email (since there are no accounts yet).
 - [ ] **Submission Previews**: Allow users to see how their listing/job looks before final submit.
