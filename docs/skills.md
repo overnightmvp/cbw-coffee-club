@@ -14,11 +14,13 @@
 - Vercel (hosting + deployments)
 
 **Database Tables:**
-- `vendors` - Coffee cart vendor listings
+- `vendors` - Coffee cart, coffee shop, and barista listings
 - `inquiries` - Event organizer booking requests
 - `vendor_applications` - New vendor registration submissions
 - `jobs` - Job board postings from event organizers
 - `quotes` - Vendor quote submissions for jobs
+- `messages` - In-app chat messages between vendors and organizers
+- `push_subscriptions` - Web push notification subscriptions
 
 ---
 
@@ -39,16 +41,17 @@ All transactional emails via Brevo:
 5. Applicant decision emails (approval/rejection notifications)
 6. Admin verification codes (email-based admin login)
 
-### Phase 3: E2 — Real Vendor Data ✅
-- Browse page (`/`) fetches vendors from Supabase
-- Vendor detail pages (`/vendors/[slug]`) load from database
-- Admin approval creates vendor record in database
-- Hardcoded `vendors.ts` file removed
+### Phase 4: E5 — Barista Directory & Coffee Shop Expansion ✅
+- Support for multiple vendor types: `mobile_cart`, `coffee_shop`, `barista`.
+- Conditional profile templates (BaristaProfile, CoffeeShopProfile).
+- Specialized filters for each category (amenities for shops, hourly rates for baristas).
+- Dynamic SEO metadata and JSON-LD schemas for all vendor types.
 
-### Phase 4: E5 — Quote Acceptance ✅
-- Job detail page shows "Accept" button for pending quotes
-- Accepting quote closes job, rejects other quotes
-- Vendor receives acceptance email with job owner contact
+### Phase 5: Dashboard & Messaging ✅
+- Vendor Dashboard at `/vendor/dashboard`.
+- Real-time in-app messaging between vendors and inquiries.
+- Web Push Notifications for new messages and inquiries.
+- Profile management for vendors.
 
 ---
 
@@ -737,13 +740,11 @@ Same variables as above, set in:
 
 ## Next Features to Build (Priority Order)
 
-1. **E6-1: Rate Limiting** - Prevent API abuse
-2. **E6-2: Error Logging** - Sentry integration
-3. **E6-3: Admin Audit Log** - Track admin actions
-4. **E6-4: Email Delivery Tracking** - Log sent emails
-5. **E6-5: Data Validation** - Zod schemas for all inputs
+1. **E6-1: Google Auth Hardening** - Move sessions to database.
+2. **E6-2: Database RLS** - Secure all tables with specific policies.
+3. **E6-3: Rate Limiting** - Protect from registration/inquiry spam.
 
-See `docs/backlog.md` for full epic breakdown.
+See `docs/AGILE_BACKLOG.md` for full epic breakdown.
 
 ---
 

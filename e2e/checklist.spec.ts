@@ -41,6 +41,18 @@ test.describe('Section 2: Browse Vendors (/app)', () => {
         await expect(page.locator('article.vendor-card').first()).toBeVisible();
     });
 
+    test('should filter by vendor type (Barista)', async ({ page }) => {
+        const typeFilter = page.locator('select').first();
+        await typeFilter.selectOption('barista');
+
+        // Wait for results to update
+        await page.waitForTimeout(1000);
+
+        // Check if visible cards are baristas or if count message updated
+        await expect(page.locator('article.vendor-card').first()).toBeVisible();
+        await expect(page.getByText(/Independent Barista/i).first()).toBeVisible();
+    });
+
     test('should filter by suburb', async ({ page }) => {
         // Assuming there is a suburb select or input
         // We'll look for a filter section first
@@ -131,6 +143,38 @@ test.describe('Section 4: Vendor Registration (/vendors/register)', () => {
         // Ensure "Submit Application" is present
         const submitBtn = page.getByRole('button', { name: /Submit Application/i });
         await expect(submitBtn).toBeVisible();
+    });
+
+    test('should handle Barista registration specifically', async ({ page }) => {
+        await page.goto('/vendors/register');
+
+        // Step 1: Select Barista
+        await page.getByRole('button', { name: /☕/i }).click();
+        await expect(page.getByLabel(/Display Name \/ Name/i)).toBeVisible();
+
+        await page.getByLabel(/Display Name \/ Name/i).fill('Expert Barista Jo');
+        await page.getByLabel(/Specialty/i).fill('Latte Art & Dial-in');
+        await page.getByLabel(/Description/i).fill('I am a professional barista with 10 years experience working in high volume specialty coffee shops across Melbourne.');
+        await page.getByRole('button', { name: /Continue|Next/i }).first().click();
+
+        // Step 2: Service Details
+        await expect(page.getByText(/Suburbs you serve/i)).toBeVisible();
+        await page.getByLabel('Carlton').check();
+
+        // Check Hourly Rate label
+        await expect(page.getByText(/Hourly Rate \(\$\/hr\)/i)).toBeVisible();
+        await page.getByPlaceholder('65').fill('65');
+        await page.getByPlaceholder('350').fill('80');
+
+        // Capacity should NOT be visible for baristas
+        await expect(page.getByText(/Capacity \(guests\)/i)).not.toBeVisible();
+
+        await page.getByLabel('Corporate event').check();
+        await page.getByRole('button', { name: /Continue|Next/i }).first().click();
+
+        // Step 3: Review
+        await expect(page.getByText(/Hourly Rate/i)).toBeVisible();
+        await expect(page.getByText(/Expert Barista Jo/i)).toBeVisible();
     });
 });
 

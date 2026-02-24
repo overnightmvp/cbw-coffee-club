@@ -10,6 +10,7 @@
 |---|---|---|---|
 | **Melbourne Pricing Guide** | Event | High | Answers #1 customer question |
 | **How to Hire (Corporate)** | Event | High | Focuses on high-value B2B |
+| **Hiring an Independent Barista** | Service | Medium | New category education (Phase 4) |
 | **Top 10 Mobile Coffee Carts**| List | High | Showcases our own directory |
 | **Start a Coffee Cart Business**| Educational| High | Supply-side growth (vendor lead gen) |
 
@@ -18,6 +19,7 @@
 ### Event Organizer Cluster
 *Focus: Hiring guidance and cost transparency.*
 - Pricing Guide → Hire Guide → Vendor Directory → Specific Event Type Guides (Weddings, Festivals).
+- Barista Hiring Guide → Skill Verification → Booking Professional Staff.
 
 ### Vendor Growth Cluster
 *Focus: Helping vendors succeed on the platform.*

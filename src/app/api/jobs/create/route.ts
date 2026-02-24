@@ -22,8 +22,26 @@ const JobSchema = z.object({
   contact_phone: z.string().optional().nullable(),
 })
 
+import { isRateLimited, getClientIdentifier } from '@/lib/rate-limit'
+
 export async function POST(request: NextRequest) {
   try {
+    // 0. Rate limiting
+    const identifier = getClientIdentifier(request)
+    const limited = await isRateLimited({
+      identifier,
+      action: 'job_creation',
+      maxRequests: 3,
+      interval: '1 hour'
+    })
+
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many job posts. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
 
     // Validate with Zod
@@ -51,6 +69,11 @@ export async function POST(request: NextRequest) {
       contact_phone
     } = result.data
 
+    // Generate management token
+    const managementToken = crypto.randomUUID()
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://thebeanroute.com.au'
+    const managementUrl = `${baseUrl}/jobs/manage/${managementToken}`
+
     // 1. Insert into database
     const { error: insertError } = await supabaseAdmin
       .from('jobs')
@@ -67,7 +90,8 @@ export async function POST(request: NextRequest) {
         special_requirements,
         contact_name,
         contact_email,
-        contact_phone
+        contact_phone,
+        management_token: managementToken
       })
 
     if (insertError) {
@@ -88,6 +112,13 @@ export async function POST(request: NextRequest) {
             <h2 style="color: #3B2A1A;">Hi ${contact_name},</h2>
             <p>Your job <strong>"${event_title}"</strong> is now live on <strong>The Bean Route</strong>!</p>
             <p>Melbourne's best coffee carts have been notified. We'll send you an email as soon as quotes start coming in.</p>
+            
+            <div style="margin: 25px 0; padding: 20px; background: #F5C842; border-radius: 12px; text-align: center;">
+              <p style="margin: 0 0 15px 0; font-weight: bold; color: #1A1A1A;">Manage your job and view quotes here:</p>
+              <a href="${managementUrl}" style="display: inline-block; padding: 12px 24px; background: #1A1A1A; color: #FFFFFF; text-decoration: none; border-radius: 8px; font-weight: bold;">View Job & Quotes</a>
+              <p style="margin: 15px 0 0 0; font-size: 12px; color: #3B2A1A;">No login required. Keep this link private.</p>
+            </div>
+
             <div style="margin: 20px 0; padding: 15px; background: #FAF5F0; border-radius: 8px;">
               <p style="margin: 0;"><strong>Event:</strong> ${event_title}</p>
               <p style="margin: 0;"><strong>Date:</strong> ${event_date}</p>
@@ -120,14 +151,14 @@ export async function POST(request: NextRequest) {
             <p><strong>Customer:</strong> ${contact_name} (${contact_email})</p>
             <p><strong>Date:</strong> ${event_date}</p>
             <p><strong>Budget:</strong> ${budget_min ? `$${budget_min}-` : ''}$${budget_max}/hr</p>
-            <a href="https://thebeanroute.com.au/dashboard/jobs" style="display: inline-block; padding: 10px 20px; background-color: #F5C842; color: #1A1A1A; text-decoration: none; border-radius: 5px; font-weight: bold;">View in Dashboard</a>
+            <a href="${baseUrl}/dashboard/jobs" style="display: inline-block; padding: 10px 20px; background-color: #F5C842; color: #1A1A1A; text-decoration: none; border-radius: 5px; font-weight: bold;">View in Dashboard</a>
           </div>
         </body>
       </html>
     `
     await sendEmail(adminEmail, adminSubject, adminHtml)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, management_token: managementToken })
   } catch (error) {
     console.error('Unexpected error in job creation route:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

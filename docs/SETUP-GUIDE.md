@@ -78,7 +78,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 - estimated_cost, status, created_at
 
 **vendor_applications:**
-- id, business_name, specialty, description, suburbs (array)
+- id, vendor_type, business_name, specialty, description, suburbs (array)
 - price_min, price_max, capacity_min, capacity_max, event_types (array)
 - contact_name, contact_email, contact_phone, website, status, created_at
 
@@ -222,6 +222,7 @@ Open http://localhost:3000
      ```
      [ADMIN AUTH] Verification code for your@email.com: 123456
      ```
+   - **Note:** In production, codes are securely stored in the `admin_verification_codes` table and sent via email. The console log is for local development only.
 
 3. **Login:**
    - Enter the 6-digit code

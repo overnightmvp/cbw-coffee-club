@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { type Vendor, type LegacyVendor, isCoffeeShop } from '@/lib/supabase'
+import { type Vendor, type LegacyVendor, isCoffeeShop, isBarista } from '@/lib/supabase'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { Button } from '@/components/ui'
 import { InquiryModal } from '@/components/booking/SimpleBookingModal'
 import { CoffeeShopProfile } from '@/components/vendors/CoffeeShopProfile'
 import { MobileCartProfile } from '@/components/vendors/MobileCartProfile'
+import { BaristaProfile } from '@/components/vendors/BaristaProfile'
 import Link from 'next/link'
 
 interface VendorPageClientProps {
@@ -103,6 +104,24 @@ export default function VendorPageClient({ slug }: VendorPageClientProps) {
         <Header variant="app" />
         <CoffeeShopProfile vendor={vendor} />
         <Footer />
+      </div>
+    )
+  }
+
+  // Barista profile
+  if (isBarista(vendor)) {
+    return (
+      <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
+        <Header variant="app" />
+        <BaristaProfile vendor={vendor} onGetQuoteClick={() => setShowInquiryModal(true)} />
+        <Footer />
+
+        <InquiryModal
+          vendor={convertToLegacyVendor(vendor)}
+          isOpen={showInquiryModal}
+          onClose={() => setShowInquiryModal(false)}
+          onSuccess={() => setShowInquiryModal(false)}
+        />
       </div>
     )
   }

@@ -5,11 +5,16 @@ import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { StepIndicator } from '@/components/shared/StepIndicator'
+import { VendorCard } from '@/components/vendors/VendorCard'
+import { LocationAutocomplete } from '@/components/shared/LocationAutocomplete'
+import confetti from 'canvas-confetti'
 
 interface RegistrationFormData {
+  vendorType: 'mobile_cart' | 'coffee_shop' | 'barista'
   businessName: string
   specialty: string
   description: string
+  physical_address: string
   suburbs: string[]
   priceMin: string
   priceMax: string
@@ -38,8 +43,12 @@ export default function VendorRegister() {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [formData, setFormData] = useState<RegistrationFormData>({
+    vendorType: 'mobile_cart',
     businessName: '', specialty: '', description: '',
+    physical_address: '',
     suburbs: [], priceMin: '', priceMax: '',
     capacityMin: '', capacityMax: '',
     eventTypes: [],
@@ -49,6 +58,23 @@ export default function VendorRegister() {
   const updateField = (field: keyof RegistrationFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     if (errors[field]) setErrors(prev => { const next = { ...prev }; delete next[field]; return next })
+  }
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, image: 'Image must be under 2MB' }))
+        return
+      }
+      setImageFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+      if (errors.image) setErrors(prev => { const next = { ...prev }; delete next.image; return next })
+    }
   }
 
   const toggleArrayField = (field: 'suburbs' | 'eventTypes', value: string) => {
@@ -66,6 +92,10 @@ export default function VendorRegister() {
     if (!formData.description.trim()) errs.description = 'Description is required'
     else if (formData.description.trim().length < 30) errs.description = 'Description must be at least 30 characters'
     else if (formData.description.trim().length > 500) errs.description = 'Description must be under 500 characters'
+
+    if (formData.vendorType === 'coffee_shop' && !formData.physical_address.trim()) {
+      errs.physical_address = 'Shop address is required'
+    }
     return errs
   }
 
@@ -73,13 +103,18 @@ export default function VendorRegister() {
     const errs: Record<string, string> = {}
     if (formData.suburbs.length === 0) errs.suburbs = 'Select at least one suburb'
     if (!formData.priceMin) errs.priceMin = 'Minimum price is required'
-    else if (Number(formData.priceMin) < 50) errs.priceMin = 'Minimum price must be at least $50'
+    else if (Number(formData.priceMin) < 30) errs.priceMin = 'Price must be at least $30'
     if (!formData.priceMax) errs.priceMax = 'Maximum price is required'
     else if (formData.priceMin && Number(formData.priceMax) < Number(formData.priceMin)) errs.priceMax = 'Maximum must be greater than minimum'
-    if (!formData.capacityMin) errs.capacityMin = 'Minimum capacity is required'
-    else if (Number(formData.capacityMin) < 10) errs.capacityMin = 'Minimum must be at least 10'
-    if (!formData.capacityMax) errs.capacityMax = 'Maximum capacity is required'
-    else if (formData.capacityMin && Number(formData.capacityMax) < Number(formData.capacityMin)) errs.capacityMax = 'Maximum must be greater than minimum'
+
+    // Capacity only required for non-baristas
+    if (formData.vendorType !== 'barista') {
+      if (!formData.capacityMin) errs.capacityMin = 'Minimum capacity is required'
+      else if (Number(formData.capacityMin) < 1) errs.capacityMin = 'Minimum must be at least 1'
+      if (!formData.capacityMax) errs.capacityMax = 'Maximum capacity is required'
+      else if (formData.capacityMin && Number(formData.capacityMax) < Number(formData.capacityMin)) errs.capacityMax = 'Maximum must be greater than minimum'
+    }
+
     if (formData.eventTypes.length === 0) errs.eventTypes = 'Select at least one event type'
     return errs
   }
@@ -102,30 +137,64 @@ export default function VendorRegister() {
 
   const handleBack = () => setStep(prev => (prev - 1) as 1 | 2 | 3)
 
+  const uploadImage = async (appId: string): Promise<string | null> => {
+    if (!imageFile) return null
+
+    // Import supabase client dynamically to avoid any client-side issues
+    const { supabase } = await import('@/lib/supabase-client')
+
+    const fileExt = imageFile.name.split('.').pop()
+    const fileName = `${appId}.${fileExt}`
+    const filePath = `${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('vendor-images')
+      .upload(filePath, imageFile, { upsert: true })
+
+    if (uploadError) {
+      console.error('Error uploading image:', uploadError)
+      return null
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('vendor-images')
+      .getPublicUrl(filePath)
+
+    return publicUrl
+  }
+
   const handleSubmit = async () => {
     const errs = validateStep3()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setIsSubmitting(true)
     try {
       const id = `app_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
+
+      let imageUrl = null
+      if (imageFile) {
+        imageUrl = await uploadImage(id)
+      }
+
       const response = await fetch('/api/vendors/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id,
+          vendor_type: formData.vendorType,
           business_name: formData.businessName.trim(),
           specialty: formData.specialty.trim(),
           description: formData.description.trim(),
           suburbs: formData.suburbs,
           price_min: Number(formData.priceMin),
           price_max: Number(formData.priceMax),
-          capacity_min: Number(formData.capacityMin),
-          capacity_max: Number(formData.capacityMax),
+          capacity_min: formData.vendorType === 'barista' ? 0 : Number(formData.capacityMin),
+          capacity_max: formData.vendorType === 'barista' ? 999 : Number(formData.capacityMax),
           event_types: formData.eventTypes,
           contact_name: formData.contactName.trim(),
           contact_email: formData.contactEmail.trim(),
           contact_phone: formData.contactPhone.trim() || null,
           website: formData.website.trim() || null,
+          image_url: imageUrl,
         }),
       })
 
@@ -159,6 +228,12 @@ export default function VendorRegister() {
       }
 
       setSubmitted(true)
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#F5C842', '#3B2A1A', '#FAF5F0']
+      })
     } catch (err: any) {
       if (err.message !== 'Validation failed') {
         setErrors({ submit: 'Something went wrong. Please try again.' })
@@ -199,7 +274,7 @@ export default function VendorRegister() {
       <Header variant="app" />
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Register your coffee cart</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: '#1A1A1A' }}>Join the marketplace</h1>
           <p className="text-neutral-600 text-sm">Get listed on The Bean Route in a few minutes.</p>
         </div>
 
@@ -207,9 +282,32 @@ export default function VendorRegister() {
 
         {/* Step 1 — Your Business */}
         {step === 1 && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <label htmlFor="businessName" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Business name</label>
+              <label className="block text-sm font-medium mb-3" style={{ color: '#1A1A1A' }}>What kind of vendor are you?</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'mobile_cart', label: 'Mobile Cart', icon: '🚐' },
+                  { id: 'coffee_shop', label: 'Coffee Shop', icon: '🏠' },
+                  { id: 'barista', label: 'Independent Barista', icon: '☕' }
+                ].map(type => (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => updateField('vendorType', type.id)}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${formData.vendorType === type.id ? 'border-[#F5C842] bg-[#FAF5F0]' : 'border-neutral-200 bg-white hover:border-neutral-300'}`}
+                  >
+                    <span className="text-2xl mb-2">{type.icon}</span>
+                    <span className="text-sm font-semibold" style={{ color: '#1A1A1A' }}>{type.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="businessName" className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>
+                {formData.vendorType === 'barista' ? 'Display Name / Name' : 'Business name'}
+              </label>
               <input
                 id="businessName"
                 type="text"
@@ -249,6 +347,53 @@ export default function VendorRegister() {
                 </span>
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Vendor Photo</label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-2xl bg-neutral-100 border-2 border-dashed border-neutral-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl">📸</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <label
+                    htmlFor="photo-upload"
+                    className="inline-block px-4 py-2 border border-neutral-300 rounded-lg text-xs font-bold cursor-pointer hover:bg-white active:bg-neutral-50"
+                  >
+                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                  </label>
+                  <p className="text-[10px] text-neutral-400 mt-2 italic">Max 2MB. A photo of your cart or setup makes you 3x more likely to be booked.</p>
+                </div>
+              </div>
+              {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>{formData.vendorType === 'coffee_shop' ? 'Shop Address' : 'Primary Base Location'}</label>
+              <LocationAutocomplete
+                value={formData.physical_address}
+                onChange={val => updateField('physical_address', val)}
+                placeholder={formData.vendorType === 'coffee_shop' ? 'e.g. 123 Gertrude St, Fitzroy' : 'e.g. Richmond, VIC'}
+                className={inputClass('physical_address')}
+                error={errors.physical_address}
+              />
+              {errors.physical_address && <p className="text-red-500 text-xs mt-1">{errors.physical_address}</p>}
+              <p className="text-[10px] text-neutral-400 mt-1.5 italic">
+                {formData.vendorType === 'coffee_shop'
+                  ? 'Your exact shop location so customers can find you.'
+                  : 'The general area where you are based.'}
+              </p>
+            </div>
           </div>
         )}
 
@@ -276,12 +421,14 @@ export default function VendorRegister() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Price range ($/hr)</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>
+                {formData.vendorType === 'barista' ? 'Hourly Rate ($/hr)' : 'Price range ($/hr)'}
+              </label>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
                   <input
                     type="number"
-                    placeholder="150"
+                    placeholder={formData.vendorType === 'barista' ? '65' : '150'}
                     value={formData.priceMin}
                     onChange={e => updateField('priceMin', e.target.value)}
                     className={inputClass('priceMin')}
@@ -302,32 +449,34 @@ export default function VendorRegister() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Capacity (guests)</label>
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <input
-                    type="number"
-                    placeholder="20"
-                    value={formData.capacityMin}
-                    onChange={e => updateField('capacityMin', e.target.value)}
-                    className={inputClass('capacityMin')}
-                  />
-                  {errors.capacityMin && <p className="text-red-500 text-xs mt-1">{errors.capacityMin}</p>}
-                </div>
-                <span className="text-neutral-400 text-sm">–</span>
-                <div className="flex-1">
-                  <input
-                    type="number"
-                    placeholder="150"
-                    value={formData.capacityMax}
-                    onChange={e => updateField('capacityMax', e.target.value)}
-                    className={inputClass('capacityMax')}
-                  />
-                  {errors.capacityMax && <p className="text-red-500 text-xs mt-1">{errors.capacityMax}</p>}
+            {formData.vendorType !== 'barista' && (
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Capacity (guests)</label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <input
+                      type="number"
+                      placeholder="20"
+                      value={formData.capacityMin}
+                      onChange={e => updateField('capacityMin', e.target.value)}
+                      className={inputClass('capacityMin')}
+                    />
+                    {errors.capacityMin && <p className="text-red-500 text-xs mt-1">{errors.capacityMin}</p>}
+                  </div>
+                  <span className="text-neutral-400 text-sm">–</span>
+                  <div className="flex-1">
+                    <input
+                      type="number"
+                      placeholder="150"
+                      value={formData.capacityMax}
+                      onChange={e => updateField('capacityMax', e.target.value)}
+                      className={inputClass('capacityMax')}
+                    />
+                    {errors.capacityMax && <p className="text-red-500 text-xs mt-1">{errors.capacityMax}</p>}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: '#1A1A1A' }}>Event types</label>
@@ -378,41 +527,30 @@ export default function VendorRegister() {
             </div>
 
             {/* Review summary */}
-            <div className="rounded-xl p-5 mt-2" style={{ backgroundColor: '#FAF5F0' }}>
-              <h3 className="text-sm font-bold mb-3" style={{ color: '#3B2A1A' }}>Review your listing</h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <span className="font-semibold" style={{ color: '#1A1A1A' }}>{formData.businessName}</span>
-                  <span className="text-neutral-500 ml-2">— {formData.specialty}</span>
-                </div>
-                <p className="text-neutral-600">{formData.description}</p>
-                <div>
-                  <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Suburbs</span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {formData.suburbs.map(s => (
-                      <span key={s} className="inline-block px-2 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#F5C842', color: '#1A1A1A' }}>{s}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-6">
-                  <div>
-                    <span className="text-xs text-neutral-500">Pricing</span>
-                    <p className="font-semibold" style={{ color: '#1A1A1A' }}>${formData.priceMin}–${formData.priceMax}/hr</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-neutral-500">Capacity</span>
-                    <p className="font-semibold" style={{ color: '#1A1A1A' }}>{formData.capacityMin}–{formData.capacityMax} guests</p>
-                  </div>
-                </div>
-                <div>
-                  <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Event types</span>
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {formData.eventTypes.map(t => (
-                      <span key={t} className="inline-block px-2 py-0.5 rounded-full text-xs border border-neutral-300 text-neutral-600">{t}</span>
-                    ))}
-                  </div>
-                </div>
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400" style={{ color: '#3B2A1A' }}>Marketplace Preview</h3>
+                <span className="text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded italic">Draft</span>
               </div>
+
+              <VendorCard
+                vendor={{
+                  business_name: formData.businessName,
+                  vendor_type: formData.vendorType,
+                  specialty: formData.specialty,
+                  description: formData.description,
+                  suburbs: formData.suburbs,
+                  price_min: Number(formData.priceMin),
+                  price_max: Number(formData.priceMax),
+                  capacity_min: formData.vendorType === 'barista' ? 0 : Number(formData.capacityMin),
+                  capacity_max: formData.vendorType === 'barista' ? 999 : Number(formData.capacityMax),
+                  image_url: imagePreview,
+                  physical_address: formData.physical_address
+                }}
+                showActions={false}
+              />
+
+              <p className="text-[11px] text-center text-neutral-400 italic">This is how customers will see you in the marketplace. You can edit this later.</p>
             </div>
 
             {errors.submit && <p className="text-red-500 text-xs">{errors.submit}</p>}

@@ -93,6 +93,11 @@ BREVO_API_KEY=xkeysib-your_key_here
 - **Quote Submission**: Respond to job postings
 - **Email Notifications**: Receive inquiry alerts via Brevo
 
+### For Independent Baristas
+- **Professional Listing**: Showcase skills, experience, and hourly rates
+- **Event Booking**: Get hired for events, private parties, or cafe staff cover
+- **Simple Registration**: Apply as an individual professional
+
 ### Admin Portal
 - **Authentication**: Email + 6-digit code verification
 - **Inquiry Management**: View and manage booking requests
@@ -270,7 +275,14 @@ src/
 
 See `docs/backlog.md` for full feature list and completion details.
 
-### ⏳ Phase 3: Production Hardening (Current)
+### ✅ Phase 4: Barista Directory Expansion (Complete - Feb 2026)
+- ✅ Support for "Independent Barista" vendor type
+- ✅ Specialized barista profile UI with hourly rates and skill display
+- ✅ Enhanced registration flow for individuals
+- ✅ Category-based filtering in the marketplace
+- ✅ Barista-specific SEO metadata and JSON-LD schemas
+
+### ⏳ Phase 5: Production Hardening (Current)
 **Epic E6** - Make the system bulletproof for real users:
 - Rate limiting on forms and API routes
 - Error logging and monitoring (Sentry integration)
@@ -278,15 +290,15 @@ See `docs/backlog.md` for full feature list and completion details.
 - Email delivery tracking and retry logic
 - Enhanced server-side validation (Zod schemas)
 
-See `docs/backlog.md` for detailed stories and acceptance criteria.
+See `docs/AGILE_BACKLOG.md` for detailed stories and acceptance criteria.
 
-### 📋 Phase 4: Vendor Features (Planned)
+### 📋 Phase 6: Vendor Features (Planned)
 **Epic E7** - Let vendors manage their own listings:
 - Vendor authentication and login
 - Vendor dashboard (view inquiries, update profile, manage availability)
 - Calendar integration for unavailable dates
 
-See `docs/backlog.md` for future enhancements.
+See `docs/AGILE_BACKLOG.md` for future enhancements.
 
 ## 🐛 Known Issues & Solutions
 

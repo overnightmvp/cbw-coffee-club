@@ -1,39 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { getCurrentAdmin } from '@/lib/admin'
 
 // Force dynamic rendering - this route uses cookies
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('admin_session')
+    const session = await getCurrentAdmin()
 
-    if (!sessionCookie) {
-      return NextResponse.json({ authenticated: false }, { status: 401 })
-    }
-
-    try {
-      const session = JSON.parse(sessionCookie.value)
-
-      // Check expiration
-      if (session.expires < Date.now()) {
-        // Clear expired cookie
-        const response = NextResponse.json({ authenticated: false }, { status: 401 })
-        response.cookies.set('admin_session', '', { maxAge: 0 })
-        return response
-      }
-
-      return NextResponse.json({
-        authenticated: true,
-        email: session.email
-      })
-    } catch (e) {
-      // Invalid cookie format
+    if (!session) {
       const response = NextResponse.json({ authenticated: false }, { status: 401 })
-      response.cookies.set('admin_session', '', { maxAge: 0 })
+      // Proactively clear legacy cookies to force a clean state
+      response.cookies.delete('admin_session')
+      response.headers.set('Cache-Control', 'no-store, max-age=0')
       return response
     }
+
+    const response = NextResponse.json({
+      authenticated: true,
+      email: session.email
+    })
+    response.headers.set('Cache-Control', 'no-store, max-age=0')
+    return response
   } catch (error) {
     console.error('Error checking session:', error)
     return NextResponse.json({ error: 'Failed to check session' }, { status: 500 })

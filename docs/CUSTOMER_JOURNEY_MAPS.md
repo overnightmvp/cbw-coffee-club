@@ -66,3 +66,13 @@ Mapping the end-to-end experience for every primary user of The Bean Route.
 - **Login:** OTP via email (AuthGate).
 - **Table View:** Scanning Inquiries, Applications, and Jobs.
 - **Mutation:** Approve/Reject (Triggers decision emails).
+
+---
+
+## 5. Technical Guardrails & Safety
+*Goal: Ensure the integrity of the marketplace.*
+
+- **Rate Limiting:** Protects the funnel at every stage (Registration, Inquiry, Job Post). 
+- **Atomic Verification:** OTP codes are purged from the DB immediately upon successful verification.
+- **Signed Sessions:** Admin session cookies are encrypted with a rotating secret to prevent session hijacking.
+- **RLS Lockdown:** The database itself rejects any unauthorized mutations, even if an API key is leaked.

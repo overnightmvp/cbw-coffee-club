@@ -2,11 +2,29 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { sendEmail } from '@/lib/email'
 
+import { isRateLimited, getClientIdentifier } from '@/lib/rate-limit'
+
 // Force dynamic rendering - admin API routes should never be static
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // 0. Rate limiting
+    const identifier = getClientIdentifier(request)
+    const limited = await isRateLimited({
+      identifier,
+      action: 'admin_otp',
+      maxRequests: 5,
+      interval: '1 hour'
+    })
+
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const { email } = await request.json()
 
     if (!email || !email.includes('@')) {
@@ -105,10 +123,18 @@ export async function POST(request: NextRequest) {
       </html>
     `
 
-    await sendEmail(email, subject, html)
+    const emailSent = await sendEmail(email, subject, html)
 
-    // Also log to console as fallback
-    console.log(`[ADMIN AUTH] Verification code for ${email}: ${code}`)
+    if (!emailSent) {
+      console.error('Failed to send verification email to:', email)
+      return NextResponse.json(
+        { error: 'Failed to send verification email. Please contact support.' },
+        { status: 500 }
+      )
+    }
+
+    // For development/debugging, logging the code is handled via email content during local testing
+    console.log(`✅ Verification email sent to ${email}`)
 
     return NextResponse.json({ success: true })
   } catch (error) {

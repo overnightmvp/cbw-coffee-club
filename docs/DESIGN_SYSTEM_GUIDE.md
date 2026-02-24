@@ -41,3 +41,16 @@ A simple guide to the styling and components that define the TBR brand.
 - **Rounding:** Large (`rounded-xl` or `rounded-lg`) for a premium, friendly feel.
 - **Shadows:** Subtle or `none` with border-neutral-200. We prefer a "flat/organic" look.
 - **Spacing:** Generous padding (`py-16` for sections, `p-5` for cards).
+
+---
+
+## 4. Auth & Gating Patterns
+
+### Passwordless Login
+- **Flow:** Centralized `AuthGate` component that wraps protected routes.
+- **Visuals:** Minimalist centered card with Brand Gold accent on the icon and primary button.
+- **Feedback:** Error states use `bg-red-50` with `text-red-600` for high visibility on the Linen background.
+
+### Gated Admin UI
+- **Tabs:** Pill-shaped navigation handles major administrative contexts (Inquiries, Applications, Jobs, Docs).
+- **Security Feedback:** 401/403 states automatically trigger the AuthGate, ensuring zero "ghost states" for unauthenticated users.

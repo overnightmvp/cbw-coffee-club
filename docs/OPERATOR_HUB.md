@@ -60,14 +60,40 @@
 
 ---
 
-## 4. Operational Checklist (Pre-Push)
+---
+
+## 4. Security & Stability Guardrails
+
+To protect against spam and unauthorized access, the following guardrails are active:
+
+### A. Admin Authentication
+- **Mechanism:** Passwordless OTP (One-Time Password) sent via email.
+- **Persistence:** Codes are stored in the database (`admin_verification_codes`) with a 10-minute expiry.
+- **Session:** Uses `iron-session` for **signed and encrypted cookies**. The session is tamper-proof and expires in 24 hours.
+- **Logout:** Use `/api/dashboard/logout` to clear all session state.
+
+### B. Rate Limiting
+- **Global Protection:** A database-backed rate limiter (`check_rate_limit`) is applied to all public forms.
+- **Limits:**
+  - Vendor Registration: 3 per hour per IP.
+  - Inquiries: 5 per hour per IP.
+  - Job Creation: 3 per hour per IP.
+  - Admin OTP requests: 5 per hour per IP.
+
+### C. Database Lockdown (RLS)
+- **Row Level Security:** Enabled on all core tables.
+- **Access Control:** Public users can only `INSERT` (submit). `SELECT`, `UPDATE`, and `DELETE` are reserved for authenticated admins using the `service_role`.
+
+---
+
+## 5. Operational Checklist (Pre-Push)
 
 Run these before every deployment to ensure stability.
 
 1. **Build Check:** `npm run build` should pass with zero errors.
 2. **Auth Verification:** Ensure `/admin` login sends the code successfully.
-3. **Filter Test:** Home page `/app` should show both "Mobile Cart" and "Coffee Shop" entries.
-4. **Workflow Test:** Submit a test inquiry on a demo vendor profile.
+3. **Filter Test:** Home page `/app` should show both "Mobile Cart", "Coffee Shop", and "Independent Barista" entries.
+4. **Workflow Test:** Submit a test inquiry on a demo vendor profile (Cart/Shop) or review a Barista profile.
 5. **Mobile Responsive:** Check `/app` and `/vendors/register` on mobile-size screens.
 
 ---

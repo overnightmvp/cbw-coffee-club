@@ -1,11 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { getIronSession } from 'iron-session'
+import { cookies } from 'next/headers'
+import { sessionOptions, AdminSession } from '@/lib/session-config'
+
+import { isRateLimited, getClientIdentifier } from '@/lib/rate-limit'
 
 // Force dynamic rendering - this route sets cookies
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    // 0. Rate limiting (prevent brute forcing)
+    const identifier = getClientIdentifier(request)
+    const limited = await isRateLimited({
+      identifier,
+      action: 'admin_verify',
+      maxRequests: 10,
+      interval: '1 hour'
+    })
+
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many verification attempts. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const { email, code } = await request.json()
 
     if (!email || !code) {
@@ -37,19 +58,14 @@ export async function POST(request: NextRequest) {
     // Clear the used code
     await supabaseAdmin.from('admin_verification_codes').delete().eq('email', email.toLowerCase())
 
-    // Create session cookie
-    const session = {
-      email,
-      expires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
-    }
-
+    // Create secure session
     const response = NextResponse.json({ success: true, email })
-    response.cookies.set('admin_session', JSON.stringify(session), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 // 24 hours in seconds
-    })
+    const cookieStore = await cookies()
+    const session = await getIronSession<AdminSession>(cookieStore, sessionOptions)
+
+    session.email = email
+    session.expires = Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+    await session.save()
 
     return response
   } catch (error) {

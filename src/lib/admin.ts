@@ -1,9 +1,6 @@
 import { cookies } from 'next/headers'
-
-export type AdminSession = {
-  email: string
-  expires: number
-}
+import { getIronSession } from 'iron-session'
+import { sessionOptions, AdminSession } from './session-config'
 
 /**
  * Get current admin session (server-side only)
@@ -12,20 +9,19 @@ export type AdminSession = {
 export async function getCurrentAdmin(): Promise<AdminSession | null> {
   try {
     const cookieStore = await cookies()
-    const sessionCookie = cookieStore.get('admin_session')
+    const session = await getIronSession<AdminSession>(cookieStore, sessionOptions)
 
-    if (!sessionCookie) {
+    if (!session.email) {
+      console.log('[AUTH] No email found in iron-session cookie')
       return null
     }
 
-    const session: AdminSession = JSON.parse(sessionCookie.value)
-
-    // Check expiration
-    if (session.expires < Date.now()) {
+    // Check expiration (iron-session handles this, but we keep it for backward compatibility)
+    if (session.expires && session.expires < Date.now()) {
       return null
     }
 
-    return session
+    return session as AdminSession
   } catch (error) {
     console.error('Error getting admin session:', error)
     return null

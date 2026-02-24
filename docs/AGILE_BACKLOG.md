@@ -8,10 +8,10 @@ This is the centralized source of truth for all current and future work on The B
 *Goal: Fix the "brutal" audit holes before real users touch the site.*
 
 - [x] **Consolidate Documentation**: Move all project artifacts into this Agile Hub.
-- [ ] **Admin Session Hardening**: Move OTP codes to DB (currently in-memory) and sign session cookies.
-- [ ] **Database RLS Policies**: Lock down `quotes`, `jobs`, and `applications` (currently world-writable).
-- [ ] **Rate Limiting**: Protect inquiry and registration forms from spam/DDoS.
-- [ ] **Zod Validation**: Implement server-side schema validation for all POST routes.
+- [x] **Admin Session Hardening**: Move OTP codes to DB and implement signed cookies.
+- [x] **Database RLS Policies**: Lock down `quotes`, `jobs`, and `applications`.
+- [x] **Rate Limiting**: Protect inquiry and registration forms from spam.
+- [x] **Zod Validation**: Implement server-side schema validation for all POST routes.
 
 ---
 
@@ -35,6 +35,7 @@ This is the centralized source of truth for all current and future work on The B
 ---
 
 ## ⚪ Epic 4: Regional & Category Expansion (Roadmap)
+- [x] **Barista Directory Expansion**: Dedicated profiles and filters for independent baristas.
 - [ ] **Multi-State Launch**: Hubs for NSW, QLD, and SA.
 - [ ] **Category Filters**: Dedicated sections for "Specialty Beans" or "Sustainability Focused" carts.
 - [ ] **Payment Bridge**: Integrate Stripe for secure deposit handling.
@@ -44,8 +45,8 @@ This is the centralized source of truth for all current and future work on The B
 ## 🔍 The "Brutal Honesty" Burn-down
 | Issue | Severity | Status |
 |---|---|---|
-| World-Writable DB | 🔥 Critical | ⏳ Pending |
-| In-memory Auth Codes | 🔥 Critical | ⏳ Pending |
+| World-Writable DB | 🔥 Critical | ✅ FIXED |
+| In-memory Auth Codes | 🔥 Critical | ✅ FIXED |
 | No Image Uploads | 🔴 High | ⏳ Pending |
 | Hardcoded Whitelist | 🟡 Medium | ⏳ Pending |
 | No Page Transitions | ⚪ Low | ⏳ Pending |

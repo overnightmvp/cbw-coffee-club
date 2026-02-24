@@ -23,8 +23,26 @@ const InquirySchema = z.object({
   vendorName: z.string().min(1)
 })
 
+import { isRateLimited, getClientIdentifier } from '@/lib/rate-limit'
+
 export async function POST(request: NextRequest) {
   try {
+    // 0. Rate limiting
+    const identifier = getClientIdentifier(request)
+    const limited = await isRateLimited({
+      identifier,
+      action: 'inquiry',
+      maxRequests: 5,
+      interval: '1 hour'
+    })
+
+    if (limited) {
+      return NextResponse.json(
+        { error: 'Too many inquiry attempts. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
     const result = InquirySchema.safeParse(body)
 

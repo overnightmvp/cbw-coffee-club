@@ -9,7 +9,10 @@ export async function GET(request: NextRequest) {
     try {
         const session = await getCurrentAdmin()
         if (!session) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            const response = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+            response.cookies.delete('admin_session')
+            response.headers.set('Cache-Control', 'no-store, max-age=0')
+            return response
         }
 
         const { searchParams } = new URL(request.url)
@@ -38,9 +41,11 @@ export async function GET(request: NextRequest) {
         }
 
         const content = fs.readFileSync(filePath, 'utf8')
-        return NextResponse.json({ content })
+        const response = NextResponse.json({ content })
+        response.headers.set('Cache-Control', 'no-store, max-age=0')
+        return response
     } catch (error) {
-        console.error('Error in docs route:', error)
+        console.error('Error in docs route for session:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }

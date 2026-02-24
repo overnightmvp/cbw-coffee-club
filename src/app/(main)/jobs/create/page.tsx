@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { StepIndicator } from '@/components/shared/StepIndicator'
+import { JobCard } from '@/components/jobs/JobCard'
+import { LocationAutocomplete } from '@/components/shared/LocationAutocomplete'
 
 interface JobFormData {
   eventTitle: string
@@ -30,7 +32,7 @@ export default function CreateJob() {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [generatedId, setGeneratedId] = useState('')
+  const [managementToken, setManagementToken] = useState('')
   const [formData, setFormData] = useState<JobFormData>({
     eventTitle: '', eventType: '', eventDate: '',
     durationHours: '', guests: '', location: '',
@@ -90,7 +92,6 @@ export default function CreateJob() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setIsSubmitting(true)
     const id = `job_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
-    setGeneratedId(id)
     try {
       const response = await fetch('/api/jobs/create', {
         method: 'POST',
@@ -116,6 +117,8 @@ export default function CreateJob() {
         throw new Error('Failed to post job')
       }
 
+      const data = await response.json()
+      setManagementToken(data.management_token)
       setSubmitted(true)
     } catch (err) {
       setErrors({ submit: 'Something went wrong. Please try again.' })
@@ -135,11 +138,33 @@ export default function CreateJob() {
             </svg>
           </div>
           <h2 className="text-2xl font-bold mb-3" style={{ color: '#1A1A1A' }}>Your job is posted</h2>
-          <p className="text-neutral-600 mb-8">
+          <p className="text-neutral-600 mb-6">
             Vendors can now submit quotes. We&apos;ll notify you at {formData.contactEmail} when quotes come in.
           </p>
-          <Link href={`/jobs/${generatedId}`} className="inline-block text-sm font-semibold" style={{ color: '#3B2A1A' }}>
-            View your job →
+
+          <div className="bg-white border-2 border-[#F5C842] rounded-xl p-6 mb-8 text-left shadow-sm">
+            <h3 className="text-sm font-bold mb-2" style={{ color: '#1A1A1A' }}>Secure Management Link</h3>
+            <p className="text-[11px] text-neutral-500 mb-4">Anyone with this link can view quotes and manage this job. No password needed.</p>
+            <div className="flex items-center gap-2 p-3 bg-neutral-50 rounded-lg border border-neutral-200 mb-3">
+              <code className="text-[10px] text-neutral-600 truncate flex-1 leading-none">
+                {typeof window !== 'undefined' ? `${window.location.origin}/jobs/manage/${managementToken}` : ''}
+              </code>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/jobs/manage/${managementToken}`
+                  navigator.clipboard.writeText(url)
+                  alert('Link copied to clipboard!')
+                }}
+                className="text-[10px] font-bold text-[#3B2A1A] hover:underline"
+              >
+                COPY
+              </button>
+            </div>
+            <p className="text-[10px] text-neutral-400">We&apos;ve also emailed this link to you. Keep it private.</p>
+          </div>
+
+          <Link href={`/jobs/manage/${managementToken}`} className="inline-block text-sm font-semibold px-8 py-3 rounded-xl bg-[#3B2A1A] text-white hover:opacity-90 transition-opacity shadow-lg">
+            View Job & Quotes →
           </Link>
         </div>
         <Footer />
@@ -204,7 +229,13 @@ export default function CreateJob() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1.5" style={{ color: '#1A1A1A' }}>Location</label>
-              <input type="text" placeholder="e.g. Fitzroy Gardens, VIC" value={formData.location} onChange={e => updateField('location', e.target.value)} className={inputClass('location')} />
+              <LocationAutocomplete
+                value={formData.location}
+                onChange={val => updateField('location', val)}
+                placeholder="e.g. Fitzroy Gardens, VIC"
+                className={inputClass('location')}
+                error={errors.location}
+              />
               {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
             </div>
           </div>
@@ -259,35 +290,28 @@ export default function CreateJob() {
             </div>
 
             {/* Review card */}
-            <div className="rounded-xl p-5 mt-2" style={{ backgroundColor: '#FAF5F0' }}>
-              <h3 className="text-sm font-bold mb-3" style={{ color: '#3B2A1A' }}>Review your job</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-start">
-                  <span className="font-semibold" style={{ color: '#1A1A1A' }}>{formData.eventTitle}</span>
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#FEF3C7', color: '#92400E' }}>{formData.eventType}</span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 text-xs">
-                  <div><span className="text-neutral-500">Date</span><p className="font-medium" style={{ color: '#1A1A1A' }}>{formData.eventDate}</p></div>
-                  <div><span className="text-neutral-500">Duration</span><p className="font-medium" style={{ color: '#1A1A1A' }}>{formData.durationHours}hr</p></div>
-                  <div><span className="text-neutral-500">Guests</span><p className="font-medium" style={{ color: '#1A1A1A' }}>{formData.guests}</p></div>
-                </div>
-                <div className="text-xs">
-                  <span className="text-neutral-500">Location</span>
-                  <p className="font-medium" style={{ color: '#1A1A1A' }}>{formData.location}</p>
-                </div>
-                <div className="text-xs">
-                  <span className="text-neutral-500">Budget</span>
-                  <p className="font-medium" style={{ color: '#1A1A1A' }}>
-                    {formData.budgetMin ? `$${formData.budgetMin}–$${formData.budgetMax}/hr` : `Up to $${formData.budgetMax}/hr`}
-                  </p>
-                </div>
-                {formData.specialRequirements && (
-                  <div className="text-xs">
-                    <span className="text-neutral-500">Special requirements</span>
-                    <p className="text-neutral-600">{formData.specialRequirements}</p>
-                  </div>
-                )}
+            <div className="space-y-4 pt-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400" style={{ color: '#3B2A1A' }}>Vendor-Facing Preview</h3>
+                <span className="text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded italic">Draft</span>
               </div>
+
+              <JobCard
+                job={{
+                  event_title: formData.eventTitle,
+                  event_type: formData.eventType,
+                  event_date: formData.eventDate,
+                  duration_hours: Number(formData.durationHours),
+                  guest_count: Number(formData.guests),
+                  location: formData.location,
+                  budget_min: formData.budgetMin ? Number(formData.budgetMin) : null,
+                  budget_max: Number(formData.budgetMax),
+                  special_requirements: formData.specialRequirements,
+                  status: 'open'
+                }}
+              />
+
+              <p className="text-[11px] text-center text-neutral-400 italic">This is exactly what vendors will see when they are notified of your job.</p>
             </div>
 
             {errors.submit && <p className="text-red-500 text-xs">{errors.submit}</p>}

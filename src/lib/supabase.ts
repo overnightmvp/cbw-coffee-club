@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // The Bean Route — Database Types
 
 // Vendor type discrimination
-export type VendorType = 'mobile_cart' | 'coffee_shop'
+export type VendorType = 'mobile_cart' | 'coffee_shop' | 'barista'
 
 // Price range for coffee shops ($ to $$$$)
 export type PriceRange = '$' | '$$' | '$$$' | '$$$$'
@@ -97,6 +97,11 @@ export function isMobileCart(vendor: Vendor): boolean {
   return vendor.vendor_type === 'mobile_cart'
 }
 
+// Type guard to check if vendor is a barista
+export function isBarista(vendor: Vendor): boolean {
+  return vendor.vendor_type === 'barista'
+}
+
 // Helper to get vendor display address
 export function getVendorAddress(vendor: Vendor): string | null {
   if (vendor.vendor_type === 'coffee_shop') {
@@ -169,6 +174,7 @@ export type Inquiry = {
 export type VendorApplication = {
   id: string
   business_name: string
+  vendor_type: VendorType
   specialty: string
   description: string
   suburbs: string[]
