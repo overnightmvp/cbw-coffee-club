@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import JsonLd from "@/components/seo/JsonLd";
+import { CSPostHogProvider } from "@/components/analytics/PostHogProvider";
 
 export const metadata: Metadata = {
   title: "The Bean Route — Melbourne's Mobile Coffee Cart Marketplace",
@@ -38,9 +39,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <head>
         <JsonLd data={organizationSchema} />
-        {children}
+      </head>
+      <body suppressHydrationWarning>
+        <CSPostHogProvider>
+          {children}
+        </CSPostHogProvider>
       </body>
     </html>
   );
