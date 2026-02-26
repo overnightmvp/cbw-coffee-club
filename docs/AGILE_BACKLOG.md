@@ -21,6 +21,11 @@ This is the centralized source of truth for all current and future work on The B
 **Completed:**
 - [x] **UI Component Naming Standardization**: Standardized component file casing (button.tsx, card.tsx, etc.) to fix webpack warnings on case-insensitive filesystems.
 - [x] **formatDate Utility Function**: Added missing `formatDate` export to `@/lib/utils.ts` for dashboard date formatting.
+- [x] **Documentation Audit**: Comprehensive codebase vs documentation analysis, fixed 3 critical errors (Feb 26, 2026 - commit 9e4c25a)
+
+**In Progress:**
+- [⏳] **Coffee Shop Navigation**: Add `/coffee-shops` directory link to header navigation (identified in audit - SEO opportunity)
+- [⏳] **Design System Access Policy**: Decide if `/design-system` route should be public or dev-only, update footer accordingly
 
 **Pending:**
 - [ ] **Vendor Image Support**: Allow vendors to upload at least one "hero" image during registration.
@@ -53,6 +58,11 @@ This is the centralized source of truth for all current and future work on The B
 |---|---|---|
 | World-Writable DB | 🔥 Critical | ✅ FIXED |
 | In-memory Auth Codes | 🔥 Critical | ✅ FIXED |
+| Admin Route Mismatch | 🔥 Critical | ✅ FIXED (Feb 26) |
+| Barista Type Undocumented | 🔥 Critical | ✅ FIXED (Feb 26) |
+| Epic 4 Status Wrong | 🔥 Critical | ✅ FIXED (Feb 26) |
+| Coffee Shop Navigation Gap | 🟡 Medium | ⏳ IN PROGRESS |
+| Design System Route Unclear | 🟡 Medium | ⏳ IN PROGRESS |
 | No Image Uploads | 🔴 High | ⏳ Pending |
 | Hardcoded Whitelist | 🟡 Medium | ⏳ Pending |
 | No Page Transitions | ⚪ Low | ⏳ Pending |
