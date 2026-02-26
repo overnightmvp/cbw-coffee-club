@@ -2,17 +2,18 @@
 
 ## Project Reference
 
-**Building:** The Bean Route — 90-day coffee culture and marketplace authority hub with blog, internal linking strategy, SEO optimization, and free coffee growth loop.
+**Building:** The Bean Route — Two-sided marketplace and coffee culture hub enabling vendor self-service through OAuth-authenticated dashboard while driving organic discovery via SEO content.
 
-**Core Value:** Drive organic discovery and vendor acquisition through high-intent content.
+**Core Value:** Enable vendor success through self-service tools while driving organic discovery via high-intent coffee and event content.
+
+**Current Milestone:** v1.0 Vendor Platform MVP (Epic 3)
 
 ## Current Position
 
-**Phase:** 02-Design-System-UX
-**Current Plan:** Not started
-**Status:** Milestone complete
-
-**Progress:** [█████████░] 89%
+**Phase:** Not started (defining requirements)
+**Plan:** —
+**Status:** Defining requirements
+**Last activity:** 2026-02-26 — Milestone v1.0 started
 
 ## Recent Decisions
 
@@ -84,6 +85,16 @@ None currently tracked. Todos should be created when roadmap is broken into phas
 **Stopped at:** Completed 02-03-PLAN.md
 **Resume file:** None
 
+## Accumulated Context
+
+### Content Marketing Phases (Completed/Paused)
+- Phase 1: Chadstone Deep-Dive (blog infrastructure, venue spotlights, location guides)
+- Phase 2: Design System & UX Optimization (shadcn/ui, mobile flows, E2E tests)
+- Content phases on hold while v1.0 vendor platform features are built
+
+### Previous Milestone Decisions
+Preserved for context. See "Recent Decisions" section above for full details.
+
 ---
 
-*Last updated: 2026-02-24 after Phase 2 context capture (discuss-phase complete)*
+*Last updated: 2026-02-26 after v1.0 Vendor Platform MVP milestone initialization*

@@ -1,92 +1,112 @@
-# The Bean Route: 90-Day Content & Growth Marketing Initiative
+# The Bean Route
 
 ## What This Is
 
-The Bean Route is expanding from a simple vendor marketplace into a **coffee culture and marketplace authority hub**. This 90-day initiative builds 90 blog posts (1 per day) that drive organic traffic, educate both vendors and event organizers, and create a growth loop with partner venues offering free coffee incentives to new vendor sign-ups.
+The Bean Route is a **two-sided marketplace and coffee culture hub** for Melbourne. Event organizers find and book mobile coffee carts, coffee shops, and baristas for their events. Vendors get discovered through organic search (blog content, location guides) and manage their business through a self-service dashboard. The platform combines marketplace functionality with SEO-driven content to create a sustainable vendor acquisition loop.
+
+## Current Milestone: v1.0 Vendor Platform MVP
+
+**Goal:** Enable vendors to self-manage their presence, view inquiry performance, and access analytics through OAuth-authenticated dashboard.
+
+**Target features:**
+- Vendor authentication (OAuth with Google/Facebook)
+- Vendor dashboard with profile management
+- Quote success tracking and analytics
+- Review system for event organizers to rate vendors
 
 ## Core Value
 
-**Drive organic discovery and vendor acquisition through high-intent coffee and event content that becomes the go-to resource for finding, understanding, and booking coffee experiences in Melbourne's Chadstone and surrounding suburbs.**
+**Enable vendor success through self-service tools while driving organic discovery via high-intent coffee and event content that becomes Melbourne's go-to resource for booking coffee experiences.**
 
 ## Requirements
 
 ### Validated
 
-- ✓ Supabase PostgreSQL database (existing)
-- ✓ Next.js 14 with App Router (existing)
-- ✓ Vendor directory and profiles (existing)
-- ✓ Job board for event postings (existing)
-- ✓ Admin dashboard for management (existing)
-- ✓ Vendor self-registration flow (existing)
+**Platform Foundation:**
+- ✓ Supabase PostgreSQL database (RLS hardened, Epic 1)
+- ✓ Next.js 15 with App Router
+- ✓ Vendor directory and profiles (mobile carts, coffee shops, baristas)
+- ✓ Job board for event postings with quote submission
+- ✓ Admin dashboard with OTP authentication (iron-session)
+- ✓ Vendor self-registration flow (public, pending approval)
+- ✓ Inquiry system for event organizers
 
-### Active
+**Content Marketing (Content Phases):**
+- ✓ Payload CMS integration for blog management
+- ✓ Blog infrastructure with SEO optimization
+- ✓ shadcn/ui design system implementation
+- ✓ Mobile-optimized flows (vendor registration, inquiry forms)
+- ✓ Internal linking strategy (blog → vendor profiles)
 
-- [ ] Payload CMS integration for blog management
-- [ ] 90 blog posts covering 4 categories: venue spotlights, location guides, how-to guides, and coffee education
-- [ ] Internal linking strategy connecting blogs to vendor profiles, other posts, and guides
-- [ ] External linking partnerships with venue/coffee/event-related sites
-- [ ] Static ad placement for free coffee offers on vendor registration page
-- [ ] Static ad placement for free coffee offers in blog sidebars
-- [ ] Micro-interactions and visual polish for blog and ad components
-- [ ] SEO optimization on all posts (meta tags, structured data, keyword targeting)
-- [ ] Analytics tracking for organic traffic, conversions, and engagement
+### Active (v1.0 Vendor Platform MVP)
 
-### Out of Scope
+- [ ] Vendor authentication with OAuth (Google/Facebook)
+- [ ] Vendor dashboard landing page
+- [ ] Vendor profile editor (self-service)
+- [ ] Inquiry inbox for vendors (view inquiries received)
+- [ ] Quote submission history with status tracking
+- [ ] Analytics dashboard (views, inquiries, conversion rate)
+- [ ] Review system (event organizers rate vendors post-event)
+- [ ] Review display on public vendor profiles
 
+### Out of Scope (v1.0)
+
+- Vendor image uploads — deferred to v1.1
+- Real-time chat/messaging — not core to marketplace MVP
+- Advanced analytics (A/B testing, cohort analysis) — v2.0+
 - Mobile app — web-first focus
-- Real-time chat or messaging — not core to marketplace function
-- Advanced personalization — not MVP feature
-- Video content — text/image focus for 90-day window
-- Multi-location expansion beyond Melbourne metro in 90 days
+- Payment processing (Stripe deposits) — Epic 4
+- Multi-location expansion beyond Melbourne — future milestone
 
 ## Context
 
-**Current State:**
-- The Bean Route is a two-sided marketplace connecting event organizers with coffee cart vendors
-- 10 seed vendors in Melbourne with suburb coverage
-- Public vendor directory, job board, and inquiry system
-- Admin portal for vendor application approvals and inquiry management
+**Current State (Feb 2026):**
+- Two-sided marketplace connecting event organizers with coffee vendors (mobile carts, coffee shops, baristas)
+- 10 seed vendors in Melbourne with 23-suburb coverage
+- Public vendor directory, job board with quote submission, inquiry system
+- Admin portal (OTP auth) for vendor application approvals and inquiry management
+- Blog infrastructure with Payload CMS (content marketing phases in progress)
+- shadcn/ui design system implemented, mobile flows optimized
 
-**Geographic Strategy:**
-- **Phase 1 (Days 1-30):** Deep Chadstone focus with immediate surroundings (Fountain Gate, Westfield Chadstone area)
-- **Phase 2 (Days 31-60):** Expand to Knox, Notting Hill, Bentleigh
-- **Phase 3 (Days 61-90):** Additional suburbs and meta-content (best of all areas)
+**Vendor Limitations (Pre-v1.0):**
+- No vendor authentication — vendors cannot log in
+- No vendor dashboard — vendors cannot view inquiries or manage profiles
+- Admin manually forwards inquiries to vendors via email
+- Vendors submit quotes via public job board forms (no account needed)
+- No analytics or performance tracking for vendors
 
-**Content Mix (90 posts):**
-1. **Venue Spotlights (30 posts):** Individual coffee carts and coffee shops in coverage areas with photos, location, hours, linking to relevant guides
-2. **Location Guides (20 posts):** "Best Coffee Carts in [Suburb]", "Coffee Shops Near [Venue Type]" with multiple venue links and internal linking
-3. **How-To Guides (15 posts):** Vendor guides ("How to Price Your Cart", "Growing Your Coffee Cart Business"), organizer guides ("Guide to Hiring Coffee Carts", "Event Catering Planning")
-4. **Coffee Education (25 posts):** "How to Spot Good Coffee", "Benefits of Coffee", "L-Theanine & Coffee", "Is Decaf Really Coffee?", "Why Your Coffee Tastes Different in Different Cups", "The Barista Relationship", "What Makes a Great Barista"
+**v1.0 Motivation:**
+- Vendors need self-service tools to manage their presence
+- Admin overhead too high (manual inquiry forwarding, profile updates)
+- Vendor churn risk without visibility into inquiry performance
+- Review system needed for trust/credibility signals
 
-**Growth Loop:**
-- Partner venues offer free coffee coupons for new vendor registrations
-- Ads placed on `/vendors/register` and blog sidebars
-- Content drives SEO traffic → discovery → registration → vendor acquisition
-
-**Target Audience:**
-- **Primary:** Event organizers searching "hire coffee carts Melbourne" and related terms
-- **Secondary:** Coffee enthusiasts and vendors seeking growth knowledge
-- **Tertiary:** Local coffee culture and venue discovery
+**Technical Environment:**
+- Next.js 15 + React 19 (App Router)
+- Supabase PostgreSQL (RLS policies hardened in Epic 1)
+- iron-session for admin auth (OTP-based)
+- Brevo for transactional emails
+- Playwright for E2E testing
 
 ## Constraints
 
-- **Resource:** Solo content creator (you write/edit, Claude assists with drafting and strategy)
-- **Timeline:** 90 days = 1 post per day (strict deadline for MVP)
-- **Tech Stack:** Payload CMS for blog backend, Next.js front-end, Supabase for data
-- **Content Quality:** Balance volume with quality — AI-drafted, human-refined posts
-- **SEO:** Must target high-intent, local keywords with strong internal/external linking
-- **Production:** Batch writing approach + templated formats to maintain pace
+- **Tech Stack:** Next.js 15 + Supabase + Payload CMS (existing, cannot change)
+- **Auth System:** Must integrate with existing Supabase setup (no separate auth service)
+- **Compatibility:** Must work alongside existing admin auth (iron-session) without conflicts
+- **Security:** RLS policies mandatory (Epic 1 hardening cannot regress)
+- **Budget:** Prefer free tier OAuth (Google/Facebook) over paid auth services
+- **Timeline:** No timeline constraints for v1.0 (quality over speed)
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Payload CMS over MDX | Allows non-developers to publish, easier content scheduling | — Pending |
-| 1 post per day target | Aggressive timeline creates consistent SEO signal and content momentum | — Pending |
-| Both audiences equally | Vendors need guides, organizers need discovery — content bridges both | — Pending |
-| Free coffee incentive model | Low-cost growth lever, creates venue partnerships, drives registrations | — Pending |
-| Coffee education focus | Differentiates from competitor marketplaces, builds authority, improves SEO | — Pending |
-| AI-assisted production | Enables 90-day timeline solo, maintains quality through human refinement | — Pending |
+| OAuth over email/password | Lower friction signup, no password management, proven UX | — Pending |
+| Google + Facebook providers | Cover 90%+ of users, both have free OAuth tiers | — Pending |
+| Skip Epic 2 for v1.0 | Vendor dashboard higher priority than image uploads/previews | ✓ Good |
+| Supabase Auth | Native Supabase Auth works with RLS, avoids external dependencies | — Pending |
+| shadcn/ui design system | Already implemented, consistent vendor dashboard UI | ✓ Good |
+| Review system in v1.0 | Trust signals critical for marketplace, not deferrable | — Pending |
 
 ---
-*Last updated: 2026-02-23 after initialization*
+*Last updated: 2026-02-26 after v1.0 milestone initialization*
