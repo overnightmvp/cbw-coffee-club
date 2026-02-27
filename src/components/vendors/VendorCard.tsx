@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import { type Vendor, type VendorType, formatVendorPrice, isCoffeeShop, isMobileCart } from '@/lib/supabase'
 import { Badge, Card, CardContent } from '@/components/ui'
 import { OpenNowBadge } from '@/components/vendors/OpeningHoursDisplay'
@@ -88,12 +89,12 @@ export function VendorCard({
                 {/* Suburbs */}
                 <div className="flex flex-wrap gap-1 mb-5">
                     {vendor.suburbs?.slice(0, 3).map(suburb => (
-                        <Badge key={suburb} variant="secondary" size="xs" className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 text-neutral-600 border-none">
+                        <Badge key={suburb} variant="secondary" className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 text-neutral-600 border-none">
                             {suburb}
                         </Badge>
                     ))}
                     {(vendor.suburbs?.length || 0) > 3 && (
-                        <Badge variant="outline" size="xs" className="text-[10px] font-bold px-2 py-0.5 border-neutral-200 text-neutral-400">
+                        <Badge variant="outline" className="text-[10px] font-bold px-2 py-0.5 border-neutral-200 text-neutral-400">
                             +{(vendor.suburbs?.length || 0) - 3}
                         </Badge>
                     )}
@@ -108,9 +109,11 @@ export function VendorCard({
                         >
                             {actionLabel}
                         </button>
-                        <button className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-bold text-neutral-600 hover:bg-neutral-50 transition-all min-h-[44px]">
-                            View
-                        </button>
+                        <Link href={`/vendors/${vendor.slug}`}>
+                            <button className="px-4 py-2.5 rounded-xl border border-neutral-200 text-xs font-bold text-neutral-600 hover:bg-neutral-50 transition-all min-h-[44px]">
+                                View
+                            </button>
+                        </Link>
                     </div>
                 )}
             </CardContent>

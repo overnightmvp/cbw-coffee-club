@@ -261,12 +261,12 @@ export default function CoffeeShopsClient({ initialCoffeeShops, suburbs }: Coffe
                   {/* Suburbs */}
                   <div className="flex flex-wrap gap-1">
                     {shop.suburbs.slice(0, 2).map(suburb => (
-                      <Badge key={suburb} variant="secondary" size="xs" className="text-xs">
+                      <Badge key={suburb} variant="secondary" className="text-xs">
                         {suburb}
                       </Badge>
                     ))}
                     {shop.suburbs.length > 2 && (
-                      <Badge variant="outline" size="xs" className="text-xs">
+                      <Badge variant="outline" className="text-xs">
                         +{shop.suburbs.length - 2}
                       </Badge>
                     )}

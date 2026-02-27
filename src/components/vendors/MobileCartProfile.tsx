@@ -86,7 +86,7 @@ export function MobileCartProfile({ vendor, onGetQuoteClick }: MobileCartProfile
               <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Suburbs</div>
               <div className="flex flex-wrap gap-1">
                 {vendor.suburbs.map(suburb => (
-                  <Badge key={suburb} variant="secondary" size="xs" className="text-xs">
+                  <Badge key={suburb} variant="secondary" className="text-xs">
                     {suburb}
                   </Badge>
                 ))}

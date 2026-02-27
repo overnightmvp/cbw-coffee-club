@@ -86,7 +86,7 @@ export function BaristaProfile({ vendor, onGetQuoteClick }: BaristaProfileProps)
                             <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1">Suburbs Served</div>
                             <div className="flex flex-wrap gap-1">
                                 {vendor.suburbs.slice(0, 4).map(suburb => (
-                                    <Badge key={suburb} variant="secondary" size="xs" className="text-[10px] px-1.5 py-0 bg-neutral-100 text-neutral-600">
+                                    <Badge key={suburb} variant="secondary" className="text-[10px] px-1.5 py-0 bg-neutral-100 text-neutral-600">
                                         {suburb}
                                     </Badge>
                                 ))}

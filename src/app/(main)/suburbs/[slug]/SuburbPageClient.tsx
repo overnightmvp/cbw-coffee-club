@@ -223,12 +223,12 @@ export default function SuburbPageClient({
                   {vendor.tags && vendor.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {vendor.tags.slice(0, 2).map(tag => (
-                        <Badge key={tag} variant="secondary" size="xs" className="text-xs">
+                        <Badge key={tag} variant="secondary" className="text-xs">
                           {tag.replace(/-/g, ' ')}
                         </Badge>
                       ))}
                       {vendor.tags.length > 2 && (
-                        <Badge variant="outline" size="xs" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                           +{vendor.tags.length - 2}
                         </Badge>
                       )}

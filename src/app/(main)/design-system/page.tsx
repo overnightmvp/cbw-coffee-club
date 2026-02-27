@@ -88,7 +88,7 @@ export default function DesignSystemPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                           📚 Interactive Component Library
-                          <Badge variant="primary" size="sm">New</Badge>
+                          <Badge variant="default">New</Badge>
                         </CardTitle>
                         <CardDescription>Explore all components with live examples and code snippets</CardDescription>
                       </CardHeader>
@@ -591,7 +591,6 @@ export default function DesignSystemPage() {
                           <h4 className="font-medium mb-3">States</h4>
                           <div className="flex flex-wrap gap-3">
                             <Button>Normal</Button>
-                            <Button loading>Loading</Button>
                             <Button disabled>Disabled</Button>
                           </div>
                         </div>
@@ -603,19 +602,16 @@ export default function DesignSystemPage() {
                       <h3 className="text-lg font-semibold mb-4">Inputs</h3>
                       <div className="space-y-4 max-w-md">
                         <Input placeholder="Default input" />
-                        <Input 
-                          label="Email Address" 
-                          type="email" 
+                        <Input
+                          type="email"
                           placeholder="john@example.com"
-                          hint="We'll never share your email"
                         />
-                        <Input 
-                          label="Password" 
-                          type="password" 
-                          error="Password must be at least 8 characters"
+                        <Input
+                          type="password"
+                          placeholder="Enter password"
                         />
-                        <Input inputSize="sm" placeholder="Small input" />
-                        <Input inputSize="lg" placeholder="Large input" />
+                        <Input placeholder="Text input" className="h-8 text-sm" />
+                        <Input placeholder="Large input" className="h-12 text-base" />
                       </div>
                     </div>
 
@@ -639,10 +635,8 @@ export default function DesignSystemPage() {
                         <div>
                           <h4 className="font-medium mb-3">Sizes</h4>
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge size="xs">XS</Badge>
-                            <Badge size="sm">Small</Badge>
-                            <Badge size="base">Base</Badge>
-                            <Badge size="lg">Large</Badge>
+                            <Badge>Default Size</Badge>
+                            <p className="text-sm text-gray-600">Badge component has fixed size. Use className for custom sizing.</p>
                           </div>
                         </div>
                       </div>
@@ -664,7 +658,7 @@ export default function DesignSystemPage() {
                           </CardContent>
                         </Card>
 
-                        <Card variant="elevated">
+                        <Card className="shadow-lg">
                           <CardHeader>
                             <CardTitle>Elevated Card</CardTitle>
                             <CardDescription>Enhanced shadow for emphasis</CardDescription>

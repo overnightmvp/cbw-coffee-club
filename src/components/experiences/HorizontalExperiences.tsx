@@ -2,9 +2,10 @@
 
 import React, { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, Button, Badge } from '@/components/ui'
-import { type Vendor, type LegacyVendor, formatVendorPrice } from '@/lib/supabase'
+import { Button } from '@/components/ui'
+import { type Vendor, type LegacyVendor } from '@/lib/supabase'
 import { InquiryModal } from '@/components/booking/SimpleBookingModal'
+import { VendorCard } from '@/components/vendors/VendorCard'
 
 export function VendorCarousel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -138,81 +139,16 @@ export function VendorCarousel() {
           className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth pb-4 px-1 relative [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {vendors.map((vendor) => (
-            <Card
-              key={vendor.id}
-              className="flex-shrink-0 w-72 sm:w-80 overflow-hidden hover:shadow-lg transition-shadow duration-300 relative z-10"
-              padding="none"
-            >
-              {/* Card Image / Placeholder */}
-              <div className="relative h-44 bg-gradient-to-br from-brown-700 to-[#6B4226]">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full border-2 border-[#A0785A] flex items-center justify-center">
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" className="text-primary-400" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="absolute top-3 right-3">
-                  <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-xs font-semibold text-brown-700">
-                    {formatVendorPrice(vendor)}
-                  </Badge>
-                </div>
-              </div>
-
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="font-semibold text-lg text-neutral-900">
-                      {vendor.business_name}
-                    </h4>
-                    <p className="text-sm text-neutral-600">{vendor.specialty}</p>
-                  </div>
-
-                  <p className="text-sm text-neutral-500 line-clamp-2">
-                    {vendor.description}
-                  </p>
-
-                  {/* Suburbs */}
-                  <div className="flex flex-wrap gap-1">
-                    {vendor.suburbs.slice(0, 3).map((suburb) => (
-                      <Badge key={suburb} variant="secondary" size="xs" className="text-xs">
-                        {suburb}
-                      </Badge>
-                    ))}
-                    {vendor.suburbs.length > 3 && (
-                      <Badge variant="outline" size="xs" className="text-xs">
-                        +{vendor.suburbs.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Capacity */}
-                  <div className="text-xs text-neutral-500">
-                    Serves {vendor.capacity_min}–{vendor.capacity_max} guests
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-1">
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      className="flex-1 min-h-[44px] font-semibold touch-manipulation"
-                      onClick={() => {
-                        setSelectedVendor(convertToLegacyVendor(vendor))
-                        setShowInquiryModal(true)
-                      }}
-                    >
-                      Get a Quote
-                    </Button>
-                    <Link href={`/vendors/${vendor.slug}`}>
-                      <Button size="sm" variant="outline" className="min-h-[44px] touch-manipulation">
-                        View
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div key={vendor.id} className="flex-shrink-0 w-72 sm:w-80">
+              <VendorCard
+                vendor={vendor}
+                onActionClick={(v) => {
+                  setSelectedVendor(convertToLegacyVendor(v as Vendor))
+                  setShowInquiryModal(true)
+                }}
+                actionLabel="Get a Quote"
+              />
+            </div>
           ))}
         </div>
       </div>
