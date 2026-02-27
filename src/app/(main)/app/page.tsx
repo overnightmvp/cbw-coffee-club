@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { type Vendor, type LegacyVendor, type VendorType, formatVendorPrice, isCoffeeShop, isMobileCart } from '@/lib/supabase'
 import { Header } from '@/components/navigation/Header'
@@ -11,6 +12,9 @@ import { Footer } from '@/components/navigation/Footer'
 import { Badge, Button } from '@/components/ui'
 import { OpenNowBadge } from '@/components/vendors/OpeningHoursDisplay'
 import { VendorCard } from '@/components/vendors/VendorCard'
+import { VendorCardSkeleton } from '@/components/skeletons/VendorCardSkeleton'
+import { triggerConfetti } from '@/lib/confetti'
+import { cn } from '@/lib/utils'
 
 // Lazy load inquiry modal - only loads when needed
 const InquiryModal = dynamic(() => import('@/components/booking/SimpleBookingModal').then(mod => ({ default: mod.InquiryModal })), {
@@ -111,9 +115,31 @@ export default function BrowseVendors() {
     return (
       <div className="min-h-screen" style={{ backgroundColor: '#FAFAF8' }}>
         <Header variant="app" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
-          <div className="w-8 h-8 border-2 border-neutral-300 border-t-[#F5C842] rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-neutral-500 text-sm">Loading vendors...</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Page Header Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 w-64 bg-brown-100 rounded animate-pulse mb-2" />
+            <div className="h-4 w-96 bg-brown-100 rounded animate-pulse" />
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-lg border border-neutral-200 p-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {Array(5).fill(0).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="h-3 w-20 bg-brown-100 rounded animate-pulse" />
+                  <div className="h-10 w-full bg-brown-100 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vendor Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array(6).fill(0).map((_, i) => (
+              <VendorCardSkeleton key={i} />
+            ))}
+          </div>
         </div>
         <Footer />
       </div>
@@ -237,19 +263,26 @@ export default function BrowseVendors() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((vendor) => (
-              <VendorCard
+            {filtered.map((vendor, index) => (
+              <div
                 key={vendor.id}
-                vendor={vendor}
-                onActionClick={(v) => {
-                  if (isMobileCart(v as Vendor)) {
-                    setSelectedVendor(convertToLegacyVendor(v as Vendor))
-                    setShowInquiryModal(true)
-                  } else {
-                    window.location.href = `/vendors/${v.slug}`
-                  }
-                }}
-              />
+                className={cn(
+                  'animate-in fade-in-0 slide-in-from-bottom-4 duration-300',
+                  `[animation-delay:${Math.min(index * 50, 300)}ms]`
+                )}
+              >
+                <VendorCard
+                  vendor={vendor}
+                  onActionClick={(v) => {
+                    if (isMobileCart(v as Vendor)) {
+                      setSelectedVendor(convertToLegacyVendor(v as Vendor))
+                      setShowInquiryModal(true)
+                    } else {
+                      window.location.href = `/vendors/${v.slug}`
+                    }
+                  }}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -266,8 +299,17 @@ export default function BrowseVendors() {
           setSelectedVendor(null)
         }}
         onSuccess={() => {
+          // Close modal immediately (optimistic UI)
           setShowInquiryModal(false)
           setSelectedVendor(null)
+
+          // Show success feedback
+          toast.success('Booking inquiry sent!', {
+            description: 'The vendor will respond within 24 hours',
+          })
+
+          // Trigger celebration
+          triggerConfetti()
         }}
       />
     </div>
