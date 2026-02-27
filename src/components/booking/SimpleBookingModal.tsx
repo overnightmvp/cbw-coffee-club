@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -119,14 +120,19 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
       if (!response.ok) {
         const errData = await response.json()
         console.error('Inquiry submission error:', errData)
-        alert('Something went wrong. Please try again or contact us directly.')
+        toast.error('Failed to send inquiry', {
+          description: 'Please try again or contact us directly.',
+        })
         return
       }
 
       setSubmitted(true)
+      onSuccess() // Trigger confetti + toast in parent
     } catch (err) {
       console.error('Unexpected error:', err)
-      alert('Something went wrong. Please try again.')
+      toast.error('Failed to send inquiry', {
+        description: 'Please check your connection and try again.',
+      })
     } finally {
       setIsSubmitting(false)
     }
