@@ -1,10 +1,15 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
-import QuoteModal from '@/components/jobs/QuoteModal'
 import type { Job, Quote } from '@/lib/supabase'
+
+// Lazy load quote modal - only loads when needed
+const QuoteModal = dynamic(() => import('@/components/jobs/QuoteModal'), {
+  ssr: false,
+})
 
 export default function JobDetailClient({ id }: { id: string }) {
   const [job, setJob] = useState<Job | null>(null)

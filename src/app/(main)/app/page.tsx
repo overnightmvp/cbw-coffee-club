@@ -2,15 +2,20 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { type Vendor, type LegacyVendor, type VendorType, formatVendorPrice, isCoffeeShop, isMobileCart } from '@/lib/supabase'
 import { Header } from '@/components/navigation/Header'
 import { Footer } from '@/components/navigation/Footer'
 import { Badge, Button } from '@/components/ui'
-import { InquiryModal } from '@/components/booking/SimpleBookingModal'
 import { OpenNowBadge } from '@/components/vendors/OpeningHoursDisplay'
 import { VendorCard } from '@/components/vendors/VendorCard'
+
+// Lazy load inquiry modal - only loads when needed
+const InquiryModal = dynamic(() => import('@/components/booking/SimpleBookingModal').then(mod => ({ default: mod.InquiryModal })), {
+  ssr: false,
+})
 
 export default function BrowseVendors() {
   const [selectedVendor, setSelectedVendor] = useState<LegacyVendor | null>(null)
