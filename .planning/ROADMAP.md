@@ -1,152 +1,113 @@
-# The Bean Route: 90-Day Roadmap
+# Roadmap: The Bean Route v1.0 Vendor Platform MVP
 
 ## Overview
 
-90-day content and growth marketing initiative to establish The Bean Route as the go-to resource for finding, understanding, and booking coffee experiences in Melbourne. Structured as 3 geographic phases + 1 execution/optimization phase.
+Transform The Bean Route from admin-managed marketplace to vendor self-service platform. Vendors authenticate with OAuth (Google/Facebook), access a dashboard showing their inquiry inbox and quote history, view analytics on their performance, manage customer reviews, and edit their public profiles. This roadmap delivers the complete vendor experience across 5 phases, starting from authentication foundation through profile self-management.
 
----
+## Phases
 
-## Phase 1: Chadstone Deep-Dive (Days 1-30)
+**Phase Numbering:**
+- Integer phases (6-10): v1.0 Vendor Platform MVP work
+- Decimal phases (e.g., 6.1, 6.2): Urgent insertions (marked with INSERTED)
 
-**Goal:** Build authority in Chadstone and immediate surroundings (Fountain Gate, Westfield area) with venue spotlights, location guides, and foundational coffee education.
+Phases 1-5 completed in content marketing milestone.
 
-**Deliverables:**
-- 10 venue spotlights (coffee carts/shops in Chadstone)
-- 7 location guides ("Best Coffee Carts in Chadstone", neighborhood-specific guides)
-- 5 how-to guides (vendor and organizer guides)
-- 8 coffee education posts (foundational coffee knowledge)
+- [ ] **Phase 6: OAuth Foundation** - Vendor authentication with Google/Facebook OAuth and session management
+- [ ] **Phase 7: Dashboard & Inquiry Management** - Vendor dashboard with inquiry inbox and quote tracking
+- [ ] **Phase 8: Analytics Integration** - Real-time performance metrics and conversion tracking
+- [ ] **Phase 9: Review System** - Event organizer reviews with public display and vendor visibility
+- [ ] **Phase 10: Profile Management** - Self-service profile editing with live preview
 
-**Content Distribution:** ~30 posts
+## Phase Details
 
-**Plans:** 4/4 plans complete
-
-Plans:
-- [x] 01-01-PLAN.md — Content infrastructure setup (blog route validation, internal linking matrix, venue data)
-- [x] 01-02-PLAN.md — Venue spotlights batch (write & publish 10 spotlight posts)
-- [ ] 01-03-PLAN.md — Location guides batch (write & publish 7 location guides)
-- [ ] 01-04-PLAN.md — How-to & education content (write & publish 5 how-to + 8 coffee education posts)
-
-**Success Criteria:**
-- All 30 posts published and indexed by Google
-- Internal linking implemented (posts linking to vendor profiles, related posts)
-- First metrics snapshot: organic traffic baseline established
-
----
-
-## Phase 2: Design System & UX Optimization (Days 31-40)
-
-**Goal:** Implement consistent design system using shadcn/ui, optimize all user flows, and address onboarding/app usage blind spots without restructuring existing code.
-
-**Scope:**
-- Implement shadcn/ui library for design consistency
-- Map and optimize all critical user flows (vendor registration, event organizer inquiry, admin access)
-- Identify and fix onboarding friction points
-- Simplify testing approach with component breakdown
-- Improve overall UX across public site, admin portal, and blog
-
-**Plans:** 4/5 plans executed
+### Phase 6: OAuth Foundation
+**Goal**: Vendors can sign up and log in securely with OAuth, establishing authenticated sessions for dashboard access
+**Depends on**: Nothing (first phase in vendor platform milestone)
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05
+**Success Criteria** (what must be TRUE):
+  1. Vendor can sign up using their Google account and is immediately logged in
+  2. Vendor can sign up using their Facebook account and is immediately logged in
+  3. Vendor session persists across browser refresh without re-login
+  4. Vendor can log out from any page and session is cleared
+  5. System prevents unverified email addresses from creating accounts
+**Plans**: TBD
 
 Plans:
-- [ ] 02-01-PLAN.md — Design System Foundation & Flow Diagrams (shadcn/ui setup, flow diagrams, color validation)
-- [ ] 02-02-PLAN.md — Component Migration (migrate Button, Input, Card, Badge, Dialog, Select, Skeleton, Form)
-- [ ] 02-03-PLAN.md — Critical Flows: Vendor Registration & Organizer Inquiry (optimize mobile flows, E2E tests)
-- [ ] 02-04-PLAN.md — Landing Page & Onboarding Improvements (social proof, value prop, CTAs, post-reg feedback)
-- [ ] 02-05-PLAN.md — Form Validation & Error Handling (mobile keyboard tests, design system audit)
+- [ ] TBD
 
-**Success Criteria:**
-- shadcn/ui fully integrated and applied consistently
-- All user flows documented and optimized
-- Onboarding experience improved with reduced friction
-- Testing infrastructure simplified with reusable components
-- UX blind spots identified and resolved
+### Phase 7: Dashboard & Inquiry Management
+**Goal**: Vendors access their personalized dashboard showing all inquiries received and quotes submitted, with status tracking
+**Depends on**: Phase 6 (requires OAuth authentication)
+**Requirements**: DASH-01, DASH-02, DASH-03, INQ-01, INQ-02, INQ-03, INQ-04, INQ-05, QUOT-01, QUOT-02, QUOT-03
+**Success Criteria** (what must be TRUE):
+  1. Vendor sees dashboard landing page immediately after login with their business name
+  2. Vendor can navigate to inquiry inbox, quote history, analytics, and profile from dashboard navigation
+  3. Vendor sees complete list of all booking inquiries received for their business
+  4. Vendor can view full details of any inquiry (event date, location, guest count, organizer contact)
+  5. Vendor can mark inquiries as "contacted" or "converted" to track follow-up status
+  6. Vendor sees list of all quotes they submitted to job postings with current status
+  7. Vendor can only see their own inquiries and quotes, not other vendors' data (RLS enforced)
+**Plans**: TBD
 
----
+Plans:
+- [ ] TBD
 
-## Phase 3: Expansion to Knox/Notting Hill/Bentleigh (Days 41-70)
+### Phase 8: Analytics Integration
+**Goal**: Vendors see real-time performance metrics showing inquiry volume, quote submissions, and review ratings
+**Depends on**: Phase 7 (requires inquiry and quote data in dashboard)
+**Requirements**: ANLZ-01, ANLZ-02, ANLZ-03, ANLZ-04
+**Success Criteria** (what must be TRUE):
+  1. Vendor sees total count of inquiries received displayed on analytics dashboard
+  2. Vendor sees total count of quotes submitted displayed on analytics dashboard
+  3. Vendor sees their average star rating calculated from all reviews
+  4. Analytics numbers update immediately when new inquiry, quote, or review arrives
+**Plans**: TBD
 
-**Goal:** Scale content to adjacent suburbs with consistent format, refined workflow, and optimization based on Phase 1 performance data.
+Plans:
+- [ ] TBD
 
-**Deliverables:**
-- 12 venue spotlights (2-3 posts per suburb)
-- 8 location guides (one per suburb + multi-venue guides)
-- 5 how-to guides (vendor growth, advanced organizer guides)
-- 10 coffee education posts (mid-tier education)
+### Phase 9: Review System
+**Goal**: Event organizers can submit reviews for vendors, reviews display publicly on vendor profiles, and vendors can view their reviews
+**Depends on**: Phase 6 (independent of dashboard features, can run in parallel with Phases 7-8)
+**Requirements**: REV-01, REV-02, REV-03, REV-04, REV-05
+**Success Criteria** (what must be TRUE):
+  1. Event organizer can submit a text review with 5-star rating for a vendor they worked with
+  2. Reviews appear on the vendor's public profile page visible to all site visitors
+  3. Vendor profile displays average rating calculated from all reviews received
+  4. System validates that organizers can only review vendors they actually booked
+  5. Anyone can read vendor reviews without logging in
+**Plans**: TBD
 
-**Content Distribution:** ~35 posts
-**Success Criteria:**
-- Refined batch writing workflow in place
-- Phase 1 metrics reviewed and post optimization applied
-- Organic traffic growth measurable vs Phase 1
-- Ad placements (free coffee offers) live on registration page
+Plans:
+- [ ] TBD
 
----
+### Phase 10: Profile Management
+**Goal**: Vendors can edit their public profile information and see changes reflected immediately on their profile page
+**Depends on**: Phase 7 (requires dashboard infrastructure)
+**Requirements**: PROF-01, PROF-02, PROF-03, PROF-04, PROF-05, PROF-06
+**Success Criteria** (what must be TRUE):
+  1. Vendor can edit their business name, specialty, and description text
+  2. Vendor can edit pricing (hourly rate range for carts/shops, single rate for baristas)
+  3. Vendor can edit capacity (minimum and maximum guest counts for carts/shops)
+  4. Vendor can edit availability (suburbs served, operating hours for coffee shops)
+  5. Profile changes save and appear immediately on the public vendor profile page
+  6. Vendor can only edit their own profile, not other vendors' profiles (RLS enforced)
+**Plans**: TBD
 
-## Phase 4: Broader Coverage & Meta-Content (Days 71-90)
+Plans:
+- [ ] TBD
 
-**Goal:** Complete geographic coverage and establish authority through meta-content (best of all areas, trending topics, evergreen resources).
+## Progress
 
-**Deliverables:**
-- 8 venue spotlights (remaining suburbs and high-value locations)
-- 5 location guides (meta: best across all areas, event-type specific)
-- 5 how-to guides (advanced vendor guides, event planning masterclass)
-- 7 coffee education posts (advanced + trending)
-- 2 roundup/meta posts (resources, guides index)
+**Execution Order:**
+Phases execute in numeric order: 6 → 7 → 8 → 9 → 10
 
-**Content Distribution:** ~25 posts
-**Success Criteria:**
-- 90-post milestone achieved
-- Comprehensive internal linking matrix complete
-- SEO rankings for primary keywords established
-- Measurable organic discovery → registration conversion
-- Growth loop validated: free coffee ads → vendor registrations
+Note: Phase 9 (Review System) can begin in parallel with Phases 7-8 since it's independent of dashboard infrastructure.
 
----
-
-## Phase 5: Execution, Optimization & Launch Prep (Days 1-90 concurrent)
-
-**Goal:** Manage daily content publication, SEO optimization, growth loop activation, and platform refinements.
-
-**Deliverables:**
-- Daily blog post publication and indexing
-- Ongoing SEO optimization (meta tags, schema markup, internal links)
-- Ad placement setup and monitoring (registration page, blog sidebars)
-- Vendor registration and approval workflow optimization
-- Analytics tracking implementation (organic traffic, conversions, engagement)
-- Micro-interactions and visual polish for blog UI
-
-**Success Criteria:**
-- 90 posts published within 90-day window (1 per day avg)
-- Zero publication blockers or delays
-- SEO signals improving week-over-week
-- Growth loop operational and driving registrations
-- Analytics dashboard live and tracking key metrics
-
----
-
-## Key Milestones
-
-| Milestone | Target Date | Metric |
-|-----------|-------------|--------|
-| Phase 1 Complete (30 posts) | Day 30 | 30 blog posts live, indexed by Google |
-| Phase 2 Start (Design System) | Day 31 | shadcn/ui implementation begins |
-| Phase 2 Complete (Design System) | Day 40 | Design system consistent, flows optimized, UX improved |
-| Phase 3 Start (Knox expansion) | Day 41 | Batch writing process validated, metrics reviewed |
-| Phase 3 Complete (60 total) | Day 70 | 60 blog posts live, organic traffic measurable |
-| Phase 4 Complete (90 total) | Day 90 | 90 blog posts live, growth loop validated |
-| Growth Loop Activated | Day 30-45 | Free coffee ads live, generating registrations |
-| SEO Authority Established | Day 60+ | Primary keywords ranking, organic discovery working |
-
----
-
-## Success Metrics
-
-- **Content:** 90 blog posts published (1 per day average)
-- **SEO:** Primary keywords (eg. "hire coffee carts Melbourne") in top 10 Google results
-- **Traffic:** 2x organic traffic by Day 90 vs baseline
-- **Conversions:** Measurable organic discovery → vendor registration path
-- **Engagement:** Internal linking generating 20%+ of page views from related posts
-- **Growth Loop:** Free coffee offers generating 15%+ of new vendor registrations
-
----
-
-*Last updated: 2026-02-24 - Inserted Phase 2 (Design System & UX Optimization)*
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 6. OAuth Foundation | 0/TBD | Not started | - |
+| 7. Dashboard & Inquiry Management | 0/TBD | Not started | - |
+| 8. Analytics Integration | 0/TBD | Not started | - |
+| 9. Review System | 0/TBD | Not started | - |
+| 10. Profile Management | 0/TBD | Not started | - |
