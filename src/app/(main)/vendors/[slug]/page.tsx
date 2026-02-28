@@ -6,14 +6,14 @@ const baseUrl = 'https://thebeanroute.com.au'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const { data: vendor } = await supabaseAdmin
+  const { data: vendor, error } = await supabaseAdmin
     .from('vendors')
     .select('*')
     .eq('slug', slug)
     .eq('verified', true)
-    .single()
+    .maybeSingle()
 
-  if (!vendor) return { title: 'Vendor Not Found | The Bean Route' }
+  if (error || !vendor) return { title: 'Vendor Not Found | The Bean Route' }
 
   const isCoffeeShop = vendor.vendor_type === 'coffee_shop'
   const suburbList = vendor.suburbs.slice(0, 3).join(', ')
@@ -63,12 +63,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function VendorPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const { data: vendor } = await supabaseAdmin
+  const { data: vendor, error } = await supabaseAdmin
     .from('vendors')
     .select('*')
     .eq('slug', slug)
     .eq('verified', true)
-    .single()
+    .maybeSingle()
 
   const isCoffeeShop = vendor?.vendor_type === 'coffee_shop'
 
