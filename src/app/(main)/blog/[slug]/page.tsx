@@ -5,6 +5,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import ReactMarkdown from 'react-markdown'
 import { getAllPosts, getPostBySlug } from '@/lib/posts'
+import { getAuthor } from '@/lib/authors'
+import { generateAllSchemas } from '@/lib/schemas'
+import JsonLd from '@/components/seo/JsonLd'
+import { AuthorByline } from '@/components/blog/AuthorByline'
+import { ReadingTime } from '@/components/blog/ReadingTime'
+import { FeaturedImage } from '@/components/blog/FeaturedImage'
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -21,14 +27,62 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
+  const author = getAuthor(post.author)
+  const canonicalUrl = post.canonical || `https://thebeanroute.com.au/blog/${post.slug}`
+  const ogImage = post.featuredImage
+    ? `https://thebeanroute.com.au${post.featuredImage}`
+    : 'https://thebeanroute.com.au/og-default-blog.png'
+
   return {
     title: `${post.title} | The Bean Route`,
-    description: post.excerpt || 'Coffee cart hire guides for Melbourne',
+    description: post.metaDescription || post.excerpt || 'Coffee cart hire guides for Melbourne',
+
+    // Canonical URL
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    // Keywords
+    keywords: post.keywords || [],
+
+    // Robots
+    robots: {
+      index: !post.noindex,
+      follow: true,
+      googleBot: {
+        index: !post.noindex,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+
+    // OpenGraph
     openGraph: {
       title: post.title,
       description: post.excerpt || '',
       type: 'article',
+      url: canonicalUrl,
       publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt || post.publishedAt,
+      authors: [author.name],
+      section: post.category,
+      tags: post.keywords,
+      images: [{
+        url: ogImage,
+        width: 1200,
+        height: 630,
+        alt: post.imageAlt || post.title,
+      }],
+    },
+
+    // Twitter Card
+    twitter: {
+      card: 'summary_large_image',
+      site: '@thebeanroute',
+      creator: author.social?.twitter || '@thebeanroute',
+      title: post.title,
+      description: post.excerpt || '',
+      images: [ogImage],
     },
   }
 }
@@ -48,8 +102,15 @@ export default async function BlogPostPage({ params }: Props) {
     notFound()
   }
 
+  const author = getAuthor(post.author)
+  const schemas = generateAllSchemas(post)
+
   return (
-    <article className="container mx-auto px-4 py-16">
+    <>
+      {/* JSON-LD Structured Data */}
+      <JsonLd data={schemas} />
+
+      <article className="container mx-auto px-4 py-16">
       {/* Back button */}
       <div className="max-w-4xl mx-auto mb-8">
         <Link href="/blog">
@@ -82,16 +143,31 @@ export default async function BlogPostPage({ params }: Props) {
           </p>
         )}
 
-        {/* Metadata */}
-        <div className="flex items-center gap-4 text-gray-600 text-sm">
-          <time dateTime={post.publishedAt}>
-            {new Date(post.publishedAt).toLocaleDateString('en-AU', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </time>
+        {/* Author & Metadata */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-8">
+          <AuthorByline
+            author={author}
+            publishedAt={post.publishedAt}
+            updatedAt={post.updatedAt}
+          />
+          {post.readingTime && (
+            <>
+              <span className="hidden sm:block text-neutral-400">·</span>
+              <ReadingTime minutes={post.readingTime} />
+            </>
+          )}
         </div>
+
+        {/* Featured Image */}
+        {post.featuredImage && (
+          <FeaturedImage
+            src={post.featuredImage}
+            alt={post.imageAlt || post.title}
+            credit={post.imageCredit}
+            variant="hero"
+            priority
+          />
+        )}
       </header>
 
       {/* Article content */}
@@ -125,5 +201,6 @@ export default async function BlogPostPage({ params }: Props) {
         </Link>
       </div>
     </article>
+    </>
   )
 }

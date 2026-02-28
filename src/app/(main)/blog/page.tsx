@@ -1,7 +1,10 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { getAllPosts } from '@/lib/posts'
+import { ReadingTime } from '@/components/blog/ReadingTime'
+import type { Post } from '@/lib/posts'
 
 export const metadata: Metadata = {
   title: 'Coffee Cart Hire Blog | Melbourne Event Planning & Vendor Guides',
@@ -66,12 +69,24 @@ export default function BlogPage() {
   )
 }
 
-function BlogCard({ post }: { post: any }) {
+function BlogCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
       className="group block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow overflow-hidden"
     >
+      {/* Featured Image */}
+      {post.featuredImage && (
+        <div className="relative w-full aspect-[3/2] overflow-hidden">
+          <Image
+            src={post.featuredImage}
+            alt={post.imageAlt || post.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+      )}
+
       <div className="p-6">
         {/* Category Badge */}
         {post.category && (
@@ -96,13 +111,21 @@ function BlogCard({ post }: { post: any }) {
 
         {/* Metadata */}
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>
-            {new Date(post.publishedAt).toLocaleDateString('en-AU', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
+          <div className="flex items-center gap-3">
+            <span>
+              {new Date(post.publishedAt).toLocaleDateString('en-AU', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+            {post.readingTime && (
+              <>
+                <span>·</span>
+                <ReadingTime minutes={post.readingTime} />
+              </>
+            )}
+          </div>
           <span className="text-primary font-semibold group-hover:underline">
             Read more →
           </span>

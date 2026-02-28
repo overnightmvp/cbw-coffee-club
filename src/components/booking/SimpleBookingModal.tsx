@@ -1,6 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -16,17 +20,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { type LegacyVendor as Vendor, formatPriceRange } from '@/lib/supabase'
 import { CheckCircle2 } from 'lucide-react'
 
-interface InquiryFormData {
-  contactName: string
-  contactEmail: string
-  contactPhone: string
-  eventType: string
-  eventDate: string
-  durationHours: number
-  guestCount: number
-  location: string
-  specialRequests: string
-}
+const inquirySchema = z.object({
+  contactName: z.string().min(1, 'Your name is required'),
+  contactEmail: z.string().min(1, 'Email is required so the vendor can get back to you').email('Please enter a valid email address'),
+  contactPhone: z.string().optional(),
+  eventType: z.string().min(1, 'What kind of event is this?'),
+  eventDate: z.string().min(1, 'When is your event?'),
+  durationHours: z.number().min(1).max(24),
+  guestCount: z.number().min(1),
+  location: z.string().min(1, 'Where is your event being held?'),
+  specialRequests: z.string().optional(),
+})
+
+type InquiryFormData = z.infer<typeof inquirySchema>
 
 interface InquiryModalProps {
   vendor: Vendor | null
@@ -36,60 +42,41 @@ interface InquiryModalProps {
 }
 
 export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModalProps) {
-  const [formData, setFormData] = useState<InquiryFormData>({
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    eventType: '',
-    eventDate: '',
-    durationHours: 3,
-    guestCount: 50,
-    location: '',
-    specialRequests: '',
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm<InquiryFormData>({
+    resolver: zodResolver(inquirySchema),
+    defaultValues: {
+      contactName: '',
+      contactEmail: '',
+      contactPhone: '',
+      eventType: '',
+      eventDate: '',
+      durationHours: 3,
+      guestCount: 50,
+      location: '',
+      specialRequests: '',
+    },
+  })
+
+  const formData = watch()
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      reset()
+      setSubmitted(false)
+    }
+  }, [isOpen, reset])
+
   if (!vendor) return null
-
-  const validateEmail = (email: string): boolean => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  }
-
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {}
-
-    if (!formData.contactName) {
-      newErrors.contactName = 'Your name is required'
-    }
-    if (!formData.contactEmail) {
-      newErrors.contactEmail = 'Email is required so the vendor can get back to you'
-    } else if (!validateEmail(formData.contactEmail)) {
-      newErrors.contactEmail = 'Please enter a valid email address'
-    }
-    if (!formData.eventType) {
-      newErrors.eventType = 'What kind of event is this?'
-    }
-    if (!formData.eventDate) {
-      newErrors.eventDate = 'When is your event?'
-    }
-    if (!formData.location) {
-      newErrors.location = 'Where is your event being held?'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
 
   const estimatedCost = Math.round(
     ((vendor.priceMin + vendor.priceMax) / 2) * formData.durationHours
   )
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
-
+  const onSubmit = async (data: InquiryFormData) => {
     setIsSubmitting(true)
 
     try {
@@ -101,15 +88,15 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
         body: JSON.stringify({
           id,
           vendor_id: vendor.id,
-          event_type: formData.eventType,
-          event_date: formData.eventDate,
-          event_duration_hours: formData.durationHours,
-          guest_count: formData.guestCount,
-          location: formData.location,
-          contact_name: formData.contactName,
-          contact_email: formData.contactEmail,
-          contact_phone: formData.contactPhone || null,
-          special_requests: formData.specialRequests || null,
+          event_type: data.eventType,
+          event_date: data.eventDate,
+          event_duration_hours: data.durationHours,
+          guest_count: data.guestCount,
+          location: data.location,
+          contact_name: data.contactName,
+          contact_email: data.contactEmail,
+          contact_phone: data.contactPhone || null,
+          special_requests: data.specialRequests || null,
           estimated_cost: estimatedCost,
           vendorEmail: vendor.contactEmail,
           vendorName: vendor.businessName
@@ -119,40 +106,29 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
       if (!response.ok) {
         const errData = await response.json()
         console.error('Inquiry submission error:', errData)
-        alert('Something went wrong. Please try again or contact us directly.')
+        toast.error('Failed to send inquiry', {
+          description: 'Please try again or contact us directly.',
+        })
         return
       }
 
       setSubmitted(true)
     } catch (err) {
       console.error('Unexpected error:', err)
-      alert('Something went wrong. Please try again.')
+      toast.error('Failed to send inquiry', {
+        description: 'Please check your connection and try again.',
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const updateFormData = (field: keyof InquiryFormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
-  }
-
   const handleClose = () => {
-    setSubmitted(false)
-    setFormData({
-      contactName: '',
-      contactEmail: '',
-      contactPhone: '',
-      eventType: '',
-      eventDate: '',
-      durationHours: 3,
-      guestCount: 50,
-      location: '',
-      specialRequests: '',
-    })
-    setErrors({})
+    if (submitted) {
+      onSuccess()
+      setSubmitted(false)
+      reset()
+    }
     onClose()
   }
 
@@ -238,7 +214,7 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto px-6 py-4">
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Your details</div>
@@ -250,12 +226,11 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Input
                     id="contactName"
                     type="text"
-                    value={formData.contactName}
-                    onChange={(e) => updateFormData('contactName', e.target.value)}
+                    {...register('contactName')}
                     placeholder="Jane Smith"
                     className={`w-full mt-1 ${errors.contactName ? 'border-red-300' : ''}`}
                   />
-                  {errors.contactName && <p className="text-red-600 text-sm mt-1">{errors.contactName}</p>}
+                  {errors.contactName && <p className="text-red-600 text-sm mt-1">{errors.contactName.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="contactEmail" className="text-sm font-medium text-neutral-700">
@@ -264,12 +239,11 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Input
                     id="contactEmail"
                     type="email"
-                    value={formData.contactEmail}
-                    onChange={(e) => updateFormData('contactEmail', e.target.value)}
+                    {...register('contactEmail')}
                     placeholder="jane@company.com"
                     className={`w-full mt-1 ${errors.contactEmail ? 'border-red-300' : ''}`}
                   />
-                  {errors.contactEmail && <p className="text-red-600 text-sm mt-1">{errors.contactEmail}</p>}
+                  {errors.contactEmail && <p className="text-red-600 text-sm mt-1">{errors.contactEmail.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="contactPhone" className="text-sm font-medium text-neutral-700">
@@ -278,8 +252,7 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Input
                     id="contactPhone"
                     type="tel"
-                    value={formData.contactPhone}
-                    onChange={(e) => updateFormData('contactPhone', e.target.value)}
+                    {...register('contactPhone')}
                     placeholder="+61 4XX XXX XXX"
                     className="w-full mt-1"
                   />
@@ -295,17 +268,23 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                 <Label htmlFor="eventType" className="text-sm font-medium text-neutral-700">
                   Event type *
                 </Label>
-                <Select value={formData.eventType} onValueChange={(val) => updateFormData('eventType', val)}>
-                  <SelectTrigger id="eventType" className={`w-full mt-1 h-12 ${errors.eventType ? 'border-red-300' : ''}`}>
-                    <SelectValue placeholder="Select event type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {eventTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.eventType && <p className="text-red-600 text-sm mt-1">{errors.eventType}</p>}
+                <Controller
+                  name="eventType"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="eventType" className={`w-full mt-1 h-12 ${errors.eventType ? 'border-red-300' : ''}`}>
+                        <SelectValue placeholder="Select event type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {eventTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.eventType && <p className="text-red-600 text-sm mt-1">{errors.eventType.message}</p>}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -316,27 +295,32 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Input
                     id="eventDate"
                     type="date"
-                    value={formData.eventDate}
-                    onChange={(e) => updateFormData('eventDate', e.target.value)}
+                    {...register('eventDate')}
                     min={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                     className={`w-full mt-1 ${errors.eventDate ? 'border-red-300' : ''}`}
                   />
-                  {errors.eventDate && <p className="text-red-600 text-sm mt-1">{errors.eventDate}</p>}
+                  {errors.eventDate && <p className="text-red-600 text-sm mt-1">{errors.eventDate.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="durationHours" className="text-sm font-medium text-neutral-700">
                     Duration (hours)
                   </Label>
-                  <Select value={String(formData.durationHours)} onValueChange={(val) => updateFormData('durationHours', parseInt(val))}>
-                    <SelectTrigger id="durationHours" className="w-full mt-1 h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {durationOptions.map(h => (
-                        <SelectItem key={h} value={String(h)}>{h} hour{h > 1 ? 's' : ''}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="durationHours"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={String(field.value)} onValueChange={(val) => field.onChange(parseInt(val))}>
+                        <SelectTrigger id="durationHours" className="w-full mt-1 h-12">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {durationOptions.map(h => (
+                            <SelectItem key={h} value={String(h)}>{h} hour{h > 1 ? 's' : ''}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -345,16 +329,22 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Label htmlFor="guestCount" className="text-sm font-medium text-neutral-700">
                     Guests
                   </Label>
-                  <Select value={String(formData.guestCount)} onValueChange={(val) => updateFormData('guestCount', parseInt(val))}>
-                    <SelectTrigger id="guestCount" className="w-full mt-1 h-12">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {guestOptions.map(n => (
-                        <SelectItem key={n} value={String(n)}>{n} guests</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="guestCount"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={String(field.value)} onValueChange={(val) => field.onChange(parseInt(val))}>
+                        <SelectTrigger id="guestCount" className="w-full mt-1 h-12">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {guestOptions.map(n => (
+                            <SelectItem key={n} value={String(n)}>{n} guests</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div>
                   <Label htmlFor="location" className="text-sm font-medium text-neutral-700">
@@ -363,12 +353,11 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                   <Input
                     id="location"
                     type="text"
-                    value={formData.location}
-                    onChange={(e) => updateFormData('location', e.target.value)}
+                    {...register('location')}
                     placeholder="e.g. Fitzroy Gardens, VIC"
                     className={`w-full mt-1 ${errors.location ? 'border-red-300' : ''}`}
                   />
-                  {errors.location && <p className="text-red-600 text-sm mt-1">{errors.location}</p>}
+                  {errors.location && <p className="text-red-600 text-sm mt-1">{errors.location.message}</p>}
                 </div>
               </div>
 
@@ -378,8 +367,7 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
                 </Label>
                 <Textarea
                   id="specialRequests"
-                  value={formData.specialRequests}
-                  onChange={(e) => updateFormData('specialRequests', e.target.value)}
+                  {...register('specialRequests')}
                   placeholder="Dietary requirements, specific setup needs, anything else..."
                   rows={3}
                   className="w-full mt-1 min-h-[96px]"
@@ -434,7 +422,7 @@ export function InquiryModal({ vendor, isOpen, onClose, onSuccess }: InquiryModa
               variant="primary"
               size="lg"
               disabled={isSubmitting}
-              onClick={handleSubmit}
+              onClick={handleSubmit(onSubmit)}
               className="w-full h-12"
             >
               {isSubmitting ? (

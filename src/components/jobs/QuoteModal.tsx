@@ -1,6 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'sonner'
 import {
   Dialog,
   DialogContent,
@@ -14,6 +18,19 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { CheckCircle2 } from 'lucide-react'
 import type { Job } from '@/lib/supabase'
+import { triggerConfetti } from '@/lib/confetti'
+
+const quoteSchema = z.object({
+  vendorName: z.string().min(1, 'Vendor name is required'),
+  pricePerHour: z.string().min(1, 'Price is required').refine((val) => {
+    const num = Number(val)
+    return !isNaN(num) && num > 0
+  }, 'Price must be a positive number'),
+  message: z.string().max(300, 'Message must be under 300 characters').optional(),
+  contactEmail: z.string().min(1, 'Email is required').email('Enter a valid email'),
+})
+
+type QuoteFormData = z.infer<typeof quoteSchema>
 
 interface QuoteModalProps {
   jobId: string
@@ -26,31 +43,28 @@ interface QuoteModalProps {
 export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: QuoteModalProps) {
   const [submitted, setSubmitted] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [formData, setFormData] = useState({
-    vendorName: '',
-    pricePerHour: '',
-    message: '',
-    contactEmail: '',
+
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<QuoteFormData>({
+    resolver: zodResolver(quoteSchema),
+    defaultValues: {
+      vendorName: '',
+      pricePerHour: '',
+      message: '',
+      contactEmail: '',
+    },
   })
 
-  const updateField = (field: keyof typeof formData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) setErrors(prev => { const next = { ...prev }; delete next[field]; return next })
-  }
+  const formData = watch()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      reset()
+      setSubmitted(false)
+    }
+  }, [isOpen, reset])
 
-    const errs: Record<string, string> = {}
-    if (!formData.vendorName.trim()) errs.vendorName = 'Vendor name is required'
-    if (!formData.pricePerHour) errs.pricePerHour = 'Price is required'
-    else if (Number(formData.pricePerHour) <= 0) errs.pricePerHour = 'Price must be positive'
-    if (!formData.contactEmail.trim()) errs.contactEmail = 'Email is required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail)) errs.contactEmail = 'Enter a valid email'
-    if (formData.message.length > 300) errs.message = 'Message must be under 300 characters'
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
-
+  const onSubmit = async (data: QuoteFormData) => {
     setIsSubmitting(true)
     try {
       const { supabase } = await import('@/lib/supabase')
@@ -58,15 +72,17 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
       const { error } = await supabase.from('quotes').insert({
         id,
         job_id: jobId,
-        vendor_name: formData.vendorName.trim(),
-        price_per_hour: Number(formData.pricePerHour),
-        message: formData.message.trim() || null,
-        contact_email: formData.contactEmail.trim(),
+        vendor_name: data.vendorName.trim(),
+        price_per_hour: Number(data.pricePerHour),
+        message: data.message?.trim() || null,
+        contact_email: data.contactEmail.trim(),
       })
 
       if (error) {
         console.error('Quote submission error:', error)
-        setErrors({ submit: 'Something went wrong. Please try again.' })
+        toast.error('Failed to submit quote', {
+          description: 'Please try again or contact support.',
+        })
         return
       }
 
@@ -81,12 +97,12 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
               ownerName: job.contact_name,
               jobTitle: job.event_title,
               vendor: {
-                name: formData.vendorName.trim(),
-                email: formData.contactEmail.trim()
+                name: data.vendorName.trim(),
+                email: data.contactEmail.trim()
               },
               quote: {
-                pricePerHour: Number(formData.pricePerHour),
-                message: formData.message.trim() || null
+                pricePerHour: Number(data.pricePerHour),
+                message: data.message?.trim() || null
               },
               event: {
                 type: job.event_type,
@@ -103,9 +119,18 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
         }
       }
 
+      // Success feedback
       setSubmitted(true)
+      toast.success('Quote submitted!', {
+        description: 'The event organizer will review your quote.',
+      })
+      triggerConfetti()
+      onSuccess()
     } catch (err) {
-      setErrors({ submit: 'Something went wrong. Please try again.' })
+      console.error('Unexpected error:', err)
+      toast.error('Failed to submit quote', {
+        description: 'Please check your connection and try again.',
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -115,8 +140,7 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
     if (submitted) {
       onSuccess()
       setSubmitted(false)
-      setFormData({ vendorName: '', pricePerHour: '', message: '', contactEmail: '' })
-      setErrors({})
+      reset()
     }
     onClose()
   }
@@ -199,7 +223,7 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto px-6 py-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Label htmlFor="vendorName" className="text-sm font-medium text-neutral-700">
                 Vendor name *
@@ -208,11 +232,10 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
                 id="vendorName"
                 type="text"
                 placeholder="e.g. The Bean Cart"
-                value={formData.vendorName}
-                onChange={e => updateField('vendorName', e.target.value)}
+                {...register('vendorName')}
                 className={`w-full mt-1 ${errors.vendorName ? 'border-red-300' : ''}`}
               />
-              {errors.vendorName && <p className="text-red-600 text-sm mt-1">{errors.vendorName}</p>}
+              {errors.vendorName && <p className="text-red-600 text-sm mt-1">{errors.vendorName.message}</p>}
             </div>
 
             <div>
@@ -223,11 +246,10 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
                 id="pricePerHour"
                 type="number"
                 placeholder="250"
-                value={formData.pricePerHour}
-                onChange={e => updateField('pricePerHour', e.target.value)}
+                {...register('pricePerHour')}
                 className={`w-full mt-1 ${errors.pricePerHour ? 'border-red-300' : ''}`}
               />
-              {errors.pricePerHour && <p className="text-red-600 text-sm mt-1">{errors.pricePerHour}</p>}
+              {errors.pricePerHour && <p className="text-red-600 text-sm mt-1">{errors.pricePerHour.message}</p>}
             </div>
 
             <div>
@@ -237,14 +259,13 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
               <Textarea
                 id="message"
                 placeholder="Tell the event owner about your cart, availability, and what's included…"
-                value={formData.message}
-                onChange={e => updateField('message', e.target.value)}
+                {...register('message')}
                 rows={3}
                 className={`w-full mt-1 min-h-[96px] ${errors.message ? 'border-red-300' : ''}`}
               />
               <div className="flex justify-between mt-1">
-                {errors.message ? <p className="text-red-600 text-sm">{errors.message}</p> : <span />}
-                <span className="text-xs text-neutral-400">{formData.message.length}/300</span>
+                {errors.message ? <p className="text-red-600 text-sm">{errors.message.message}</p> : <span />}
+                <span className="text-xs text-neutral-400">{(formData.message || '').length}/300</span>
               </div>
             </div>
 
@@ -256,14 +277,11 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
                 id="contactEmail"
                 type="email"
                 placeholder="your@email.com"
-                value={formData.contactEmail}
-                onChange={e => updateField('contactEmail', e.target.value)}
+                {...register('contactEmail')}
                 className={`w-full mt-1 ${errors.contactEmail ? 'border-red-300' : ''}`}
               />
-              {errors.contactEmail && <p className="text-red-600 text-sm mt-1">{errors.contactEmail}</p>}
+              {errors.contactEmail && <p className="text-red-600 text-sm mt-1">{errors.contactEmail.message}</p>}
             </div>
-
-            {errors.submit && <p className="text-red-600 text-sm">{errors.submit}</p>}
           </form>
         </div>
 
@@ -288,7 +306,7 @@ export default function QuoteModal({ jobId, job, isOpen, onClose, onSuccess }: Q
               variant="primary"
               size="lg"
               disabled={isSubmitting}
-              onClick={handleSubmit}
+              onClick={handleSubmit(onSubmit)}
               className="w-full h-12"
             >
               {isSubmitting ? (
